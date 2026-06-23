@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ObjectId } from 'mongodb';
@@ -8,9 +9,23 @@ import ProductColorView from './ProductColorView';
 import StickyAddToCart from './StickyAddToCart';
 import ProductViewTracker from './ProductViewTracker';
 
+export const revalidate = 60;
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://verzus.com';
 
-async function getProduct(id: string): Promise<Product | null> {
+export async function generateStaticParams() {
+  try {
+    const db = await getDb();
+    const docs = await db.collection('products')
+      .find({ active: { $ne: false } }, { projection: { _id: 1 } })
+      .toArray();
+    return docs.map(doc => ({ id: doc._id.toString() }));
+  } catch {
+    return [];
+  }
+}
+
+const getProduct = cache(async (id: string): Promise<Product | null> => {
   try {
     if (!ObjectId.isValid(id)) return null;
     const db = await getDb();
@@ -36,7 +51,7 @@ async function getProduct(id: string): Promise<Product | null> {
   } catch {
     return null;
   }
-}
+});
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;

@@ -86,12 +86,23 @@ async function getAnnouncementSettings(): Promise<{ text: string; enabled: boole
   return undefined;
 }
 
+async function getNavCategories(): Promise<{ id: string; name: string; slug: string }[]> {
+  try {
+    const db = await getDb();
+    const docs = await db.collection('categories').find({}).sort({ order: 1, name: 1 }).toArray();
+    return docs.map(doc => ({ id: doc._id.toString(), name: doc.name as string, slug: doc.slug as string }));
+  } catch { return []; }
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const announcement = await getAnnouncementSettings();
+  const [announcement, navCategories] = await Promise.all([
+    getAnnouncementSettings(),
+    getNavCategories(),
+  ]);
 
   return (
     <html
@@ -111,7 +122,7 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col bg-white">
         <CartProvider>
           <PopupProvider>
-            <StoreShell announcement={announcement}>
+            <StoreShell announcement={announcement} navCategories={navCategories}>
               {children}
             </StoreShell>
           </PopupProvider>

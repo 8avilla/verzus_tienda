@@ -38,18 +38,30 @@ const ITEMS = [
   },
 ];
 
+const MARQUEE_ITEMS = ITEMS.flatMap(item => [item.label, '·']);
+
 export default function TrustBand() {
+  const track = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
+
   return (
-    <div className="bg-black text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-0 lg:divide-x lg:divide-white/10">
+    <div className="text-white" style={{ backgroundColor: 'var(--accent)' }}>
+      {/* Mobile: marquee */}
+      <div className="lg:hidden overflow-hidden py-2.5 select-none">
+        <div className="flex whitespace-nowrap animate-marquee">
+          {track.map((item, i) => (
+            <span key={i} className="text-[10px] uppercase tracking-[0.18em] font-semibold px-3">{item}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop: grid */}
+      <div className="hidden lg:grid max-w-7xl mx-auto px-6 py-6 grid-cols-4 divide-x divide-white/20">
         {ITEMS.map((item) => (
-          <div key={item.label} className="flex items-center gap-2 lg:gap-3 lg:px-8 first:lg:pl-0 last:lg:pr-0">
+          <div key={item.label} className="flex items-center gap-3 px-8 first:pl-0 last:pr-0">
             <span className="text-white shrink-0">{item.icon}</span>
             <div className="min-w-0">
-              <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-tight sm:tracking-[0.12em] text-white leading-tight">
-                {item.label}
-              </p>
-              <p className="text-[9px] sm:text-[10px] text-white/50 mt-0.5">{item.sub}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-white leading-tight">{item.label}</p>
+              <p className="text-[10px] text-white/50 mt-0.5">{item.sub}</p>
             </div>
           </div>
         ))}

@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { getDb } from '@/lib/mongodb';
 import { Product, CategoryDoc } from '@/types';
 import Hero from '@/components/Hero';
-import TrustBand from '@/components/TrustBand';
 import ProductGrid from '@/components/ProductGrid';
 import FAQ from '@/components/FAQ';
 import SizeGuide from '@/components/SizeGuide';
@@ -67,8 +66,6 @@ export default async function Home() {
     <main className="flex-1 w-full">
       <PageviewTracker />
       <Hero />
-
-      <TrustBand />
 
       <section id="catalogo" className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-16">
         <ProductGrid products={products} categories={categories} />

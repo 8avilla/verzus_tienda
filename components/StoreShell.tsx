@@ -4,13 +4,15 @@ import { usePathname } from 'next/navigation';
 import AnnouncementBar from './AnnouncementBar';
 import Header from './Header';
 import CartSidebar from './CartSidebar';
+import WhatsAppButton from './WhatsAppButton';
 
 interface Props {
   children: React.ReactNode;
   announcement?: { text: string; enabled: boolean };
+  navCategories?: { id: string; name: string; slug: string }[];
 }
 
-export default function StoreShell({ children, announcement }: Props) {
+export default function StoreShell({ children, announcement, navCategories = [] }: Props) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith('/admin');
 
@@ -19,9 +21,10 @@ export default function StoreShell({ children, announcement }: Props) {
   return (
     <>
       <AnnouncementBar text={announcement?.text} enabled={announcement?.enabled} />
-      <Header />
+      <Header navCategories={navCategories} />
       <CartSidebar />
       {children}
+      <WhatsAppButton />
     </>
   );
 }

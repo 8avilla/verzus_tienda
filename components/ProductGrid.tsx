@@ -20,12 +20,12 @@ export default function ProductGrid({ products, categories }: ProductGridProps) 
   ];
 
   return (
-    <section className="flex flex-col gap-10">
+    <section className="flex flex-col gap-6 lg:gap-10">
 
-      {/* Heading con número oversized */}
-      <div className="relative">
+      {/* Heading con número oversized — solo desktop */}
+      <div className="relative hidden lg:block">
         <span
-          className="absolute -top-6 sm:-top-10 left-0 text-[7rem] sm:text-[10rem] font-black text-gray-100/80 leading-none select-none pointer-events-none"
+          className="absolute -top-10 left-0 text-[10rem] font-black text-gray-100/80 leading-none select-none pointer-events-none"
           style={{ fontFamily: 'var(--font-dm-serif)' }}
           aria-hidden="true"
         >
@@ -39,16 +39,16 @@ export default function ProductGrid({ products, categories }: ProductGridProps) 
         </div>
       </div>
 
-      {/* Filtros pill */}
-      <div className="flex gap-2 flex-wrap">
+      {/* Filtros — tabs con underline */}
+      <div className="flex gap-6 overflow-x-auto scrollbar-none border-b border-gray-100 pb-0">
         {allFilters.map(f => (
           <button
             key={f.value}
             onClick={() => setActive(f.value)}
-            className={`px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.12em] transition-all duration-200 border ${
+            className={`shrink-0 pb-3 text-sm font-semibold uppercase tracking-widest transition-all duration-200 border-b-2 -mb-px ${
               active === f.value
-                ? 'bg-black text-white border-black shadow-sm'
-                : 'border-gray-200 text-gray-500 hover:border-gray-800 hover:text-black bg-white'
+                ? 'text-black border-black'
+                : 'text-gray-400 border-transparent hover:text-black'
             }`}
           >
             {f.label}
@@ -56,12 +56,12 @@ export default function ProductGrid({ products, categories }: ProductGridProps) 
         ))}
       </div>
 
-      <p className="text-[10px] text-gray-400 uppercase tracking-widest -mt-6">
+      <p className="text-[10px] text-gray-400 uppercase tracking-widest">
         {filtered.length} {filtered.length !== 1 ? 'productos' : 'producto'}
       </p>
 
       {filtered.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-8">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-6 lg:gap-x-5 lg:gap-y-8">
           {filtered.map((product, i) => (
             <ProductCard
               key={product.id}

@@ -14,6 +14,30 @@ interface ProductCardProps {
   delay?: number;
 }
 
+const COLOR_MAP: Record<string, string> = {
+  negro: '#1a1a1a',
+  blanco: '#f0f0f0',
+  rojo: '#E8001C',
+  azul: '#2563eb',
+  verde: '#16a34a',
+  amarillo: '#eab308',
+  gris: '#9ca3af',
+  cafe: '#92400e',
+  café: '#92400e',
+  rosado: '#ec4899',
+  rosa: '#f472b6',
+  naranja: '#f97316',
+  morado: '#7c3aed',
+  beige: '#d2b48c',
+  crema: '#fef3c7',
+  marino: '#1e3a5f',
+  turquesa: '#0d9488',
+};
+
+function isColorGroup(name: string) {
+  return name.toLowerCase().includes('color');
+}
+
 function initSelections(product: Product): Record<string, string> {
   const result: Record<string, string> = {};
   for (const group of product.variantGroups ?? []) {
@@ -69,7 +93,9 @@ export default function ProductCard({ product, priority = false, delay = 0 }: Pr
     touchStartX.current = null;
   }
 
-  function handleAdd() {
+  function handleAdd(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
     const doAdd = () => {
       addItem(product, Object.keys(selections).length > 0 ? selections : undefined);
       openSidebar();
@@ -90,12 +116,17 @@ export default function ProductCard({ product, priority = false, delay = 0 }: Pr
     <article
       ref={cardRef}
       style={{ animationDelay: `${delay}ms` }}
-      className={`group flex flex-col h-full rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-shadow duration-300 ${
+      className={`group flex flex-col h-full rounded-xl overflow-hidden bg-white ${
         visible ? 'animate-fade-up' : 'opacity-0'
       }`}
     >
       {/* Imagen */}
-      <Link href={`/producto/${product.id}`} className="block relative aspect-[3/4] overflow-hidden bg-gray-100 shrink-0" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+      <Link
+        href={`/producto/${product.id}`}
+        className="block relative aspect-[3/4] overflow-hidden bg-gray-100 shrink-0"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {currentImage ? (
           <Image
             src={currentImage}
@@ -109,23 +140,16 @@ export default function ProductCard({ product, priority = false, delay = 0 }: Pr
           <div className="w-full h-full bg-gray-100" />
         )}
 
-        {/* Overlay hover — sólo desktop */}
+        {/* Overlay hover — solo desktop */}
         <div className="absolute inset-0 bg-black/0 lg:group-hover:bg-black/15 transition-colors duration-500" />
 
-        {/* Badge de precio */}
-        <div className="absolute bottom-3 left-3 bg-white px-3 py-1.5 rounded-full shadow-md">
-          <span
-            className="text-sm font-bold text-black leading-none"
-            style={{ fontFamily: 'var(--font-dm-serif)' }}
-          >
-            ${product.price.toLocaleString('es-CO')}
-          </span>
-        </div>
-
-        {/* Badge agotado */}
+        {/* Badge AGOTADO — pill pequeño top-left */}
         {product.soldOut && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <span className="bg-white text-black text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full shadow">
+          <div className="absolute top-2 left-2">
+            <span
+              className="text-white text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-full"
+              style={{ backgroundColor: 'var(--accent)' }}
+            >
               Agotado
             </span>
           </div>
@@ -133,41 +157,42 @@ export default function ProductCard({ product, priority = false, delay = 0 }: Pr
 
         {/* Badge stock bajo / últimas unidades */}
         {!product.soldOut && product.stockTracked && product.stock != null && product.stock > 0 && product.stock <= 5 && (
-          <div className={`absolute top-3 right-3 text-white text-[9px] uppercase tracking-wider font-bold px-2 py-1 rounded-full shadow-sm ${
+          <div className={`absolute top-2 right-2 text-white text-[9px] uppercase tracking-wider font-bold px-2 py-1 rounded-full shadow-sm ${
             product.stock <= 2 ? 'bg-gray-500 animate-pulse' : 'bg-orange-400'
           }`}>
-            {product.stock <= 2 ? `¡Último${product.stock === 1 ? '' : 's'}! ${product.stock}` : `Solo ${product.stock} disponibles`}
+            {product.stock <= 2 ? `¡Último${product.stock === 1 ? '' : 's'}!` : `Solo ${product.stock}`}
           </div>
         )}
         {!product.soldOut && product.lastUnits && !(product.stockTracked && product.stock != null && product.stock > 0 && product.stock <= 5) && (
-          <div className="absolute top-3 right-3 bg-orange-500 animate-pulse text-white text-[9px] uppercase tracking-wider font-bold px-2 py-1 rounded-full shadow-sm">
-            Últimas unidades
+          <div className="absolute top-2 right-2 bg-orange-500 animate-pulse text-white text-[9px] uppercase tracking-wider font-bold px-2 py-1 rounded-full shadow-sm">
+            Últimas
           </div>
         )}
 
+        {/* Navegación entre imágenes */}
         {hasMultiple && (
           <>
             <button
               onClick={prev}
               aria-label="Imagen anterior"
-              className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/85 hover:bg-white flex items-center justify-center opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity shadow-sm text-base font-medium"
+              className="absolute left-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/85 hover:bg-white flex items-center justify-center opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity shadow-sm text-sm font-medium"
             >
               ‹
             </button>
             <button
               onClick={next}
               aria-label="Imagen siguiente"
-              className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/85 hover:bg-white flex items-center justify-center opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity shadow-sm text-base font-medium"
+              className="absolute right-1.5 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-white/85 hover:bg-white flex items-center justify-center opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity shadow-sm text-sm font-medium"
             >
               ›
             </button>
-            <div className="absolute bottom-3 right-3 flex gap-1.5">
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
               {images.map((_, i) => (
                 <button
                   key={i}
                   onClick={e => { e.stopPropagation(); setImgIdx(i); }}
                   aria-label={`Ver imagen ${i + 1}`}
-                  className={`w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+                  className={`w-1 h-1 rounded-full transition-all duration-200 ${
                     i === imgIdx ? 'bg-white scale-125' : 'bg-white/50 hover:bg-white/80'
                   }`}
                 />
@@ -175,61 +200,110 @@ export default function ProductCard({ product, priority = false, delay = 0 }: Pr
             </div>
           </>
         )}
+
+        {/* Ícono ↗ — esquina inferior derecha */}
+        <div className="absolute bottom-2 right-2 w-7 h-7 rounded-full bg-white/90 flex items-center justify-center shadow-sm opacity-0 group-hover:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+          <svg className="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.5 19.5l15-15M19.5 4.5H4.5M19.5 4.5v15" />
+          </svg>
+        </div>
       </Link>
 
       {/* Info */}
-      <div className="flex-1 flex flex-col p-4 gap-2">
-        <p className="text-[10px] uppercase tracking-[0.18em] text-black font-semibold leading-none">
-          {product.category}
-        </p>
-        <Link href={`/producto/${product.id}`} className="hover:text-black transition-colors">
-          <h3 className="text-sm font-medium text-black leading-snug line-clamp-2 min-h-[2.5rem]">
+      <div className="flex-1 flex flex-col p-2 lg:p-4 gap-1 lg:gap-2">
+
+        {/* Nombre */}
+        <Link href={`/producto/${product.id}`} className="hover:opacity-70 transition-opacity">
+          <h3 className="text-xs lg:text-sm font-medium text-black leading-snug line-clamp-2">
             {product.name}
           </h3>
         </Link>
 
+        {/* Precio */}
+        <p
+          className="text-sm font-bold text-black leading-none"
+          style={{ fontFamily: 'var(--font-dm-serif)' }}
+        >
+          ${product.price.toLocaleString('es-CO')}
+        </p>
+
         {/* Variantes */}
-        <div className="flex flex-col gap-2 mt-1 min-h-[2rem]">
+        <div className="flex flex-col gap-1.5 mt-1">
           {groups.map(group => (
-            <div key={group.name} className="flex flex-col gap-1.5">
-              <p className="text-[10px] uppercase tracking-wider text-gray-400">{group.name}</p>
+            <div key={group.name} className="flex flex-col gap-1">
+              {!isColorGroup(group.name) && (
+                <p className="text-[9px] uppercase tracking-wider text-gray-400">{group.name}</p>
+              )}
               <div className="flex flex-wrap gap-1">
-                {group.options.map(opt => (
-                  <button
-                    key={opt}
-                    onClick={() => setSelections(prev => ({ ...prev, [group.name]: opt }))}
-                    className={`px-2.5 py-0.5 text-[10px] uppercase tracking-wide rounded-full border transition-all duration-150 shrink-0 ${
-                      selections[group.name] === opt
-                        ? 'border-black bg-black text-white'
-                        : 'border-gray-200 text-gray-500 hover:border-black hover:text-black'
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                ))}
+                {group.options.map(opt => {
+                  const isColor = isColorGroup(group.name);
+                  const cssColor = isColor ? (COLOR_MAP[opt.toLowerCase()] ?? '#e5e7eb') : null;
+                  const isSelected = selections[group.name] === opt;
+
+                  if (isColor) {
+                    return (
+                      <button
+                        key={opt}
+                        onClick={() => setSelections(prev => ({ ...prev, [group.name]: opt }))}
+                        title={opt}
+                        aria-label={opt}
+                        className={`w-4 h-4 rounded-full border-2 transition-all duration-150 shrink-0 ${
+                          isSelected ? 'border-black scale-110' : 'border-transparent hover:border-gray-400'
+                        }`}
+                        style={{ backgroundColor: cssColor ?? undefined }}
+                      />
+                    );
+                  }
+
+                  return (
+                    <button
+                      key={opt}
+                      onClick={() => setSelections(prev => ({ ...prev, [group.name]: opt }))}
+                      className={`px-2 py-0.5 text-[9px] uppercase tracking-wide rounded-full border transition-all duration-150 shrink-0 ${
+                        isSelected
+                          ? 'text-white border-transparent'
+                          : 'border-gray-200 text-gray-500 hover:border-black hover:text-black'
+                      }`}
+                      style={isSelected ? { backgroundColor: 'var(--accent)', borderColor: 'var(--accent)' } : undefined}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* CTA */}
-      <div className="px-4 pb-4">
+      {/* CTA — solo desktop */}
+      <div className="hidden lg:block px-4 pb-4">
         <button
           onClick={handleAdd}
           disabled={product.soldOut}
           className={`w-full py-3 text-xs font-semibold uppercase tracking-[0.15em] rounded-xl transition-all duration-200 active:scale-[0.97] select-none disabled:cursor-not-allowed ${
-            product.soldOut
-              ? 'bg-gray-100 text-gray-400'
-              : added
-                ? 'bg-black text-white btn-cart-added'
-                : 'bg-black hover:bg-gray-800 text-white'
+            product.soldOut ? 'bg-gray-100 text-gray-400' : added ? 'text-white btn-cart-added' : 'text-white'
           }`}
+          style={!product.soldOut ? { backgroundColor: added ? 'var(--accent-hover)' : 'var(--accent)' } : undefined}
         >
           {product.soldOut ? 'Agotado' : added ? '✓ ¡Añadido!' : '+ Añadir al carrito'}
         </button>
       </div>
 
+      {/* CTA mobile — tap en imagen lleva al producto, botón compacto de agregar */}
+      {!product.soldOut && (
+        <div className="lg:hidden px-2 pb-2">
+          <button
+            onClick={handleAdd}
+            className={`w-full py-2 text-[10px] font-semibold uppercase tracking-wider rounded-lg transition-all active:scale-[0.97] select-none ${
+              added ? 'text-white btn-cart-added' : 'text-white'
+            }`}
+            style={{ backgroundColor: added ? 'var(--accent-hover)' : 'var(--accent)' }}
+          >
+            {added ? '✓ Añadido' : '+ Agregar'}
+          </button>
+        </div>
+      )}
     </article>
   );
 }
