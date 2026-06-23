@@ -346,67 +346,73 @@ export default function CarritoPage() {
                   )}
 
                   <div>
-                    <label className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1 font-semibold">
+                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5 font-semibold">
                       Nombre Completo
                     </label>
                     <input
                       type="text"
                       required
+                      autoComplete="name"
                       disabled={isSubmitting}
                       value={shippingDetails.name}
                       onChange={e => setShippingDetails({ ...shippingDetails, name: e.target.value })}
-                      className="w-full border border-gray-200 px-3 py-2.5 text-xs text-black focus:outline-none focus:border-black transition-colors"
+                      className="w-full border border-gray-200 px-4 py-3.5 text-sm text-black focus:outline-none focus:border-black transition-colors rounded-lg"
                       placeholder="Ej: Juan García"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1 font-semibold">
+                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5 font-semibold">
                       Correo Electrónico
                     </label>
                     <input
                       type="email"
                       required
+                      autoComplete="email"
+                      inputMode="email"
                       disabled={isSubmitting}
                       value={shippingDetails.email}
                       onChange={e => setShippingDetails({ ...shippingDetails, email: e.target.value })}
-                      className="w-full border border-gray-200 px-3 py-2.5 text-xs text-black focus:outline-none focus:border-black transition-colors"
+                      className="w-full border border-gray-200 px-4 py-3.5 text-sm text-black focus:outline-none focus:border-black transition-colors rounded-lg"
                       placeholder="ejemplo@correo.com"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1 font-semibold">
+                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5 font-semibold">
                       Número Celular
                     </label>
                     <input
                       type="tel"
                       required
+                      autoComplete="tel"
+                      inputMode="tel"
                       disabled={isSubmitting}
                       value={shippingDetails.phone}
                       onChange={e => setShippingDetails({ ...shippingDetails, phone: e.target.value })}
-                      className="w-full border border-gray-200 px-3 py-2.5 text-xs text-black focus:outline-none focus:border-black transition-colors"
+                      className="w-full border border-gray-200 px-4 py-3.5 text-sm text-black focus:outline-none focus:border-black transition-colors rounded-lg"
                       placeholder="Ej: 3004340482"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1 font-semibold">
+                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5 font-semibold">
                       Dirección de Envío
                     </label>
                     <input
                       type="text"
                       required
+                      autoComplete="street-address"
                       disabled={isSubmitting}
                       value={shippingDetails.address}
                       onChange={e => setShippingDetails({ ...shippingDetails, address: e.target.value })}
-                      className="w-full border border-gray-200 px-3 py-2.5 text-xs text-black focus:outline-none focus:border-black transition-colors"
+                      className="w-full border border-gray-200 px-4 py-3.5 text-sm text-black focus:outline-none focus:border-black transition-colors rounded-lg"
                       placeholder="Ej: Calle 10 # 5-12, Apto 402"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1 font-semibold">
+                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5 font-semibold">
                       Departamento
                     </label>
                     <select
@@ -414,7 +420,7 @@ export default function CarritoPage() {
                       disabled={isSubmitting}
                       value={shippingDetails.department}
                       onChange={e => setShippingDetails({ ...shippingDetails, department: e.target.value, city: '' })}
-                      className="w-full border border-gray-200 px-3 py-2.5 text-xs text-black focus:outline-none focus:border-black transition-colors"
+                      className="w-full border border-gray-200 px-4 py-3.5 text-sm text-black focus:outline-none focus:border-black transition-colors rounded-lg"
                     >
                       <option value="">Selecciona un departamento</option>
                       {DEPARTMENTS.map(d => (
@@ -424,7 +430,7 @@ export default function CarritoPage() {
                   </div>
 
                   <div>
-                    <label className="block text-[10px] uppercase tracking-wider text-gray-400 mb-1 font-semibold">
+                    <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5 font-semibold">
                       Ciudad / Municipio
                     </label>
                     <select
@@ -432,7 +438,7 @@ export default function CarritoPage() {
                       disabled={isSubmitting || !shippingDetails.department}
                       value={shippingDetails.city}
                       onChange={e => setShippingDetails({ ...shippingDetails, city: e.target.value })}
-                      className="w-full border border-gray-200 px-3 py-2.5 text-xs text-black focus:outline-none focus:border-black transition-colors disabled:bg-gray-50 disabled:text-gray-400"
+                      className="w-full border border-gray-200 px-4 py-3.5 text-sm text-black focus:outline-none focus:border-black transition-colors rounded-lg disabled:bg-gray-50 disabled:text-gray-400"
                     >
                       <option value="">Selecciona una ciudad</option>
                       {selectedDeptMunicipalities.map(m => (

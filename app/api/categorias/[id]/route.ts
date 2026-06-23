@@ -22,6 +22,7 @@ export async function PUT(request: Request, { params }: Context) {
       $set: {
         name: data.name,
         slug: data.slug,
+        subtitle: data.subtitle ?? '',
         order: data.order ?? 0,
         updatedAt: new Date(),
       },

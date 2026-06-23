@@ -69,16 +69,22 @@ async function getOrders(): Promise<Order[]> {
 async function getProducts(): Promise<Product[]> {
   const db = await getDb();
   const docs = await db.collection('products').find({}).sort({ name: 1 }).toArray();
-  return docs.map(doc => ({
-    id: doc._id.toString(),
-    name: doc.name as string,
-    category: doc.category as string,
-    price: doc.price as number,
-    description: (doc.description as string) ?? '',
-    images: (doc.images as string[]) ?? [],
-    variantGroups: doc.variantGroups as Product['variantGroups'],
-    active: doc.active as boolean,
-  }));
+  return docs.map(doc => {
+    const cats: string[] = Array.isArray(doc.categories) && doc.categories.length > 0
+      ? doc.categories as string[]
+      : [(doc.category as string) ?? ''].filter(Boolean);
+    return {
+      id: doc._id.toString(),
+      name: doc.name as string,
+      category: cats[0] ?? '',
+      categories: cats,
+      price: doc.price as number,
+      description: (doc.description as string) ?? '',
+      images: (doc.images as string[]) ?? [],
+      variantGroups: doc.variantGroups as Product['variantGroups'],
+      active: doc.active as boolean,
+    };
+  });
 }
 
 export default async function PedidosPage() {

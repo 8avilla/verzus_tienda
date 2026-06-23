@@ -8,18 +8,24 @@ type AdminProduct = Product & { id: string };
 async function getProducts(): Promise<AdminProduct[]> {
   const db = await getDb();
   const docs = await db.collection('products').find({}).sort({ position: 1, createdAt: -1 }).toArray();
-  return docs.map(doc => ({
-    id: doc._id.toString(),
-    name: doc.name as string,
-    category: doc.category as string,
-    price: doc.price as number,
-    description: doc.description as string,
-    images: (doc.images as string[] | undefined) ?? [],
-    variantGroups: (doc.variantGroups as Product['variantGroups']) ?? [],
-    active: doc.active !== false,
-    soldOut: doc.soldOut === true,
-    freeShipping: doc.freeShipping === true,
-  }));
+  return docs.map(doc => {
+    const cats: string[] = Array.isArray(doc.categories) && doc.categories.length > 0
+      ? doc.categories as string[]
+      : [(doc.category as string) ?? ''].filter(Boolean);
+    return {
+      id: doc._id.toString(),
+      name: doc.name as string,
+      category: cats[0] ?? '',
+      categories: cats,
+      price: doc.price as number,
+      description: doc.description as string,
+      images: (doc.images as string[] | undefined) ?? [],
+      variantGroups: (doc.variantGroups as Product['variantGroups']) ?? [],
+      active: doc.active !== false,
+      soldOut: doc.soldOut === true,
+      freeShipping: doc.freeShipping === true,
+    };
+  });
 }
 
 async function getCategories(): Promise<CategoryDoc[]> {

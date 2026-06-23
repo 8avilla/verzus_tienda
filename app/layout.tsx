@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
-import { DM_Serif_Display } from "next/font/google";
+import { Jost, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/components/CartProvider";
 import { PopupProvider } from "@/components/PopupProvider";
 import StoreShell from "@/components/StoreShell";
 import { getDb } from "@/lib/mongodb";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jost = Jost({
+  variable: "--font-jost",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 const dmSerifDisplay = DM_Serif_Display({
@@ -107,7 +107,7 @@ export default async function RootLayout({
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${dmSerifDisplay.variable} h-full`}
+      className={`${jost.variable} ${dmSerifDisplay.variable} h-full`}
     >
       <head>
         <script

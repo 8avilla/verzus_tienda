@@ -7,29 +7,19 @@ import ProductCard from '@/components/ProductCard';
 interface ProductGridProps {
   products: Product[];
   categories: CategoryDoc[];
+  initialCategory?: string;
 }
 
-const PRICE_RANGES = [
-  { label: 'Todos', min: 0, max: Infinity },
-  { label: '< $50.000', min: 0, max: 50000 },
-  { label: '$50k – $100k', min: 50000, max: 100000 },
-  { label: '> $100.000', min: 100000, max: Infinity },
-];
+export default function ProductGrid({ products, categories, initialCategory = 'todos' }: ProductGridProps) {
+  const [active, setActive] = useState(initialCategory);
 
-export default function ProductGrid({ products, categories }: ProductGridProps) {
-  const [active, setActive] = useState('todos');
-  const [priceRange, setPriceRange] = useState(0);
-
-  const filtered = products.filter(p => {
-    const categoryMatch = active === 'todos' || p.category === active;
-    const range = PRICE_RANGES[priceRange];
-    const priceMatch = p.price >= range.min && p.price < range.max;
-    return categoryMatch && priceMatch;
-  });
+  const filtered = products.filter(p =>
+    active === 'todos' || p.categories.includes(active)
+  );
 
   const allFilters = [
     { label: 'Todos', value: 'todos' },
-    ...categories.map(c => ({ label: c.name, value: c.slug })),
+    ...categories.map(c => ({ label: c.name, value: c.name })),
   ];
 
   return (
@@ -48,7 +38,7 @@ export default function ProductGrid({ products, categories }: ProductGridProps) 
           <p className="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-black font-semibold mb-2">
             <span>✦</span> Catálogo
           </p>
-          <h2 className="text-4xl sm:text-5xl text-black">Colección</h2>
+          <h2 className="text-4xl sm:text-5xl text-black">Colección completa</h2>
         </div>
       </div>
 
@@ -65,24 +55,6 @@ export default function ProductGrid({ products, categories }: ProductGridProps) 
             }`}
           >
             {f.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Filtros precio — pills */}
-      <div className="flex gap-2 flex-wrap">
-        {PRICE_RANGES.map((r, i) => (
-          <button
-            key={i}
-            onClick={() => setPriceRange(i)}
-            className={`px-3 py-1 text-[11px] font-semibold uppercase tracking-wide rounded-full border transition-all duration-150 ${
-              priceRange === i
-                ? 'text-white border-transparent'
-                : 'border-gray-200 text-gray-500 hover:border-gray-800 hover:text-black bg-white'
-            }`}
-            style={priceRange === i ? { backgroundColor: 'var(--accent)', borderColor: 'var(--accent)' } : undefined}
-          >
-            {r.label}
           </button>
         ))}
       </div>

@@ -22,7 +22,7 @@ interface ProductFormProps {
 
 interface FormErrors {
   name?: string;
-  category?: string;
+  categories?: string;
   price?: string;
   description?: string;
   images?: string;
@@ -49,8 +49,8 @@ function validateForm(form: FormProduct): FormErrors {
     e.name = 'Máximo 100 caracteres';
   }
 
-  if (!form.category) {
-    e.category = 'Selecciona una categoría';
+  if (form.categories.length === 0) {
+    e.categories = 'Selecciona al menos una categoría';
   }
 
   if (!form.price || form.price <= 0) {
@@ -170,7 +170,8 @@ export default function ProductForm({ initial }: ProductFormProps) {
 
   const [form, setForm] = useState<FormProduct>({
     name: initial?.name ?? '',
-    category: initial?.category ?? '',
+    category: initial?.categories?.[0] ?? initial?.category ?? '',
+    categories: initial?.categories ?? (initial?.category ? [initial.category] : []),
     price: initial?.price ?? 0,
     purchaseCost: initial?.purchaseCost ?? undefined,
     description: initial?.description ?? '',
@@ -429,22 +430,49 @@ export default function ProductForm({ initial }: ProductFormProps) {
         {showError('name') && <FieldError msg={formErrors.name} />}
       </div>
 
-      {/* Categoría + Precio + Costo */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col gap-1">
-          <label className="text-xs uppercase tracking-widest text-gray-500 font-medium">Categoría</label>
-          <select
-            value={form.category}
-            onChange={e => setField('category', e.target.value)}
-            onBlur={() => touch('category')}
-            className={inputClass(showError('category') && !!formErrors.category).replace('px-4', 'px-3')}
-          >
-            <option value="">— Seleccionar —</option>
-            {categories.map(c => <option key={c.id} value={c.slug}>{c.name}</option>)}
-          </select>
-          {showError('category') && <FieldError msg={formErrors.category} />}
-        </div>
+      {/* Categorías */}
+      <div className="flex flex-col gap-2">
+        <label className="text-xs uppercase tracking-widest text-gray-500 font-medium">
+          Categorías
+          <span className="normal-case font-normal text-gray-400 ml-1">(puede seleccionar varias)</span>
+        </label>
+        {categories.length === 0 ? (
+          <p className="text-xs text-gray-400 italic">Cargando categorías…</p>
+        ) : (
+          <div className="grid grid-cols-2 gap-2">
+            {categories.map(c => {
+              const checked = form.categories.includes(c.name);
+              return (
+                <label
+                  key={c.id}
+                  className={`flex items-center gap-2.5 border rounded-lg px-3 py-2.5 cursor-pointer transition-colors ${
+                    checked ? 'border-black bg-black/5' : 'border-gray-200 hover:border-gray-400'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={checked}
+                    onChange={e => {
+                      const next = e.target.checked
+                        ? [...form.categories, c.name]
+                        : form.categories.filter(x => x !== c.name);
+                      setField('categories', next);
+                      setField('category', next[0] ?? '');
+                      touch('categories');
+                    }}
+                    className="w-4 h-4 accent-black"
+                  />
+                  <span className="text-sm">{c.name}</span>
+                </label>
+              );
+            })}
+          </div>
+        )}
+        {showError('categories') && <FieldError msg={formErrors.categories} />}
+      </div>
 
+      {/* Precio + Costo */}
+      <div className="grid grid-cols-2 gap-4">
         <div className="flex flex-col gap-1">
           <label className="text-xs uppercase tracking-widest text-gray-500 font-medium">Precio (COP)</label>
           <input

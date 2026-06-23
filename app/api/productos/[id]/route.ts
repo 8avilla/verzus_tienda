@@ -8,11 +8,14 @@ export async function PUT(request: Request, { params }: Context) {
   const db = await getDb();
   const data = await request.json();
 
+  const categories: string[] = Array.isArray(data.categories) ? data.categories : (data.category ? [data.category] : []);
   await db.collection('products').updateOne(
     { _id: new ObjectId(id) },
     {
       $set: {
         ...data,
+        categories,
+        category: categories[0] ?? '',
         price: Number(data.price),
         variantGroups: data.variantGroups ?? [],
         updatedAt: new Date(),

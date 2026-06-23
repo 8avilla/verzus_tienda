@@ -46,8 +46,9 @@ export default function Header({ navCategories = [] }: Props) {
   function closeMenu() { setMenuOpen(false); }
 
   const drawerItems = [
-    { label: 'Inicio', href: isHome ? '/' : '/' },
-    ...navCategories.map(c => ({ label: c.name, href: isHome ? `#catalogo` : `/#catalogo`, slug: c.slug })),
+    { label: 'Inicio', href: '/' },
+    { label: 'Colección', href: '/coleccion' },
+    ...navCategories.map(c => ({ label: c.name, href: `/coleccion?categoria=${encodeURIComponent(c.name)}`, slug: c.slug })),
     { label: 'Tallas', href: isHome ? '#tallas' : '/#tallas' },
     { label: 'Preguntas frecuentes', href: isHome ? '#faq' : '/#faq' },
   ];
@@ -86,13 +87,21 @@ export default function Header({ navCategories = [] }: Props) {
               alt="Verzus"
               height={20}
               width={100}
-              style={{ height: '20px', width: 'auto' }}
+              className="h-5 w-auto"
               priority
+              unoptimized
             />
           </Link>
 
           {/* Nav — desktop */}
           <nav className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-8">
+            <Link
+              href="/coleccion"
+              className="relative text-xs uppercase tracking-widest text-gray-500 hover:text-black transition-colors whitespace-nowrap py-1 group"
+            >
+              Colección
+              <span className="absolute bottom-0 left-0 w-full h-[1px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+            </Link>
             {NAV_LINKS.map(link => (
               <a
                 key={link.href}

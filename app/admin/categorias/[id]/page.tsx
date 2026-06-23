@@ -16,6 +16,7 @@ async function getCategory(id: string): Promise<CategoryDoc | null> {
       id: doc._id.toString(),
       name: doc.name as string,
       slug: doc.slug as string,
+      subtitle: (doc.subtitle as string) ?? '',
     };
   } catch {
     return null;

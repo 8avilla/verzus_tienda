@@ -33,8 +33,8 @@ export default function ProductColorView({ product }: { product: Product }) {
         onActiveIndexChange={setActiveImageIndex}
       />
 
-      {/* Info */}
-      <div className="flex flex-col gap-6 lg:py-4">
+      {/* Info — sticky en desktop para que el CTA siempre esté visible */}
+      <div className="flex flex-col gap-6 lg:py-4 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto">
         <div>
           <p className="text-xs uppercase tracking-widest text-black font-semibold mb-2">{product.category}</p>
           <h1

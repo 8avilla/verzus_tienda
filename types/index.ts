@@ -2,6 +2,7 @@ export interface CategoryDoc {
   id: string;
   name: string;
   slug: string;
+  subtitle?: string;
 }
 
 export interface VariantGroup {
@@ -13,7 +14,8 @@ export interface VariantGroup {
 export interface Product {
   id: string;
   name: string;
-  category: string;
+  category: string;      // primary (first) category — for display/compat
+  categories: string[];  // all categories this product belongs to
   price: number;
   purchaseCost?: number;
   description: string;

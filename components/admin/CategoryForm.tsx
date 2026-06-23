@@ -21,6 +21,7 @@ export default function CategoryForm({ initial }: CategoryFormProps) {
   const router = useRouter();
   const [name, setName] = useState(initial?.name ?? '');
   const [slug, setSlug] = useState(initial?.slug ?? '');
+  const [subtitle, setSubtitle] = useState(initial?.subtitle ?? '');
   const [slugEdited, setSlugEdited] = useState(!!initial?.slug);
   const [order, setOrder] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -48,9 +49,9 @@ export default function CategoryForm({ initial }: CategoryFormProps) {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, slug, order }),
+        body: JSON.stringify({ name, slug, subtitle, order }),
       });
-      
+
       let data: { error?: string } = {};
       if (res.ok) {
         data = await res.json();
@@ -88,6 +89,23 @@ export default function CategoryForm({ initial }: CategoryFormProps) {
           className="border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400"
           placeholder="Ej: Camisetas"
         />
+      </div>
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-xs uppercase tracking-widest text-gray-500 font-medium">
+          Mensaje de la categoría{' '}
+          <span className="normal-case font-normal text-gray-400">(aparece en la vitrina)</span>
+        </label>
+        <input
+          value={subtitle}
+          onChange={e => setSubtitle(e.target.value)}
+          maxLength={80}
+          className="border border-gray-200 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-gray-400"
+          placeholder="Ej: Diseños que te diferencian del resto"
+        />
+        <p className="text-[11px] text-gray-400">
+          Aparece en cursiva debajo del nombre en la página de inicio.
+        </p>
       </div>
 
       <div className="flex flex-col gap-1.5">

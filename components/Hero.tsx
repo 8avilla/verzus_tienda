@@ -17,7 +17,7 @@ export default function Hero({ heroImage = '/images/portada.jpeg' }: { heroImage
     <section>
 
       {/* ── MOBILE: imagen full-width con overlay ── */}
-      <div className="relative w-full aspect-[4/3] lg:hidden">
+      <div className="relative w-full aspect-[16/9] lg:hidden">
         <Image
           src={heroImage}
           alt="Verzus colección"
@@ -28,7 +28,7 @@ export default function Hero({ heroImage = '/images/portada.jpeg' }: { heroImage
         />
 
         {/* Overlay */}
-        <div className="absolute inset-0 bg-black/35" />
+        <div className="absolute inset-0 bg-black/40" />
 
         {/* Texto centrado */}
         <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center gap-1.5 px-4">
@@ -46,15 +46,12 @@ export default function Hero({ heroImage = '/images/portada.jpeg' }: { heroImage
           </p>
         </div>
 
-        {/* Botón scroll */}
+        {/* CTA visible */}
         <button
           onClick={scrollToCatalog}
-          aria-label="Ver colección"
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-md transition-colors"
+          className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-white text-black text-[11px] font-semibold uppercase tracking-widest px-6 py-2.5 rounded-full shadow-lg hover:bg-gray-100 active:scale-95 transition-all"
         >
-          <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
+          Ver colección →
         </button>
       </div>
 

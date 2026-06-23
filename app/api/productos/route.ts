@@ -12,8 +12,11 @@ export async function POST(request: Request) {
   const data = await request.json();
   const now = new Date();
 
+  const categories: string[] = Array.isArray(data.categories) ? data.categories : (data.category ? [data.category] : []);
   const result = await db.collection('products').insertOne({
     ...data,
+    categories,
+    category: categories[0] ?? '',
     price: Number(data.price),
     variantGroups: data.variantGroups ?? [],
     createdAt: now,

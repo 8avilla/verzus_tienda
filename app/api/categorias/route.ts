@@ -20,6 +20,7 @@ export async function POST(request: Request) {
   const result = await db.collection('categories').insertOne({
     name: data.name,
     slug: data.slug,
+    subtitle: data.subtitle ?? '',
     order: data.order ?? 0,
     createdAt: now,
     updatedAt: now,

@@ -14,10 +14,14 @@ async function getProduct(id: string): Promise<AdminProduct | null> {
     const db = await getDb();
     const doc = await db.collection('products').findOne({ _id: new ObjectId(id) });
     if (!doc) return null;
+    const cats: string[] = Array.isArray(doc.categories) && doc.categories.length > 0
+      ? doc.categories as string[]
+      : [(doc.category as string) ?? ''].filter(Boolean);
     return {
       id: doc._id.toString(),
       name: doc.name as string,
-      category: doc.category as string,
+      category: cats[0] ?? '',
+      categories: cats,
       price: doc.price as number,
       description: doc.description as string,
       images: (doc.images as string[] | undefined) ?? [],
