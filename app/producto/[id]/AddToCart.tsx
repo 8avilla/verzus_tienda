@@ -2,13 +2,14 @@
 
 import { useState } from 'react';
 import { Product } from '@/types';
+import { useCart } from '@/components/CartProvider';
+import { usePopup } from '@/components/PopupProvider';
+import { trackEvent } from '@/lib/sessionId';
+import SizeModal from '@/components/SizeModal';
 
 function isHexColor(s: string) {
   return /^#[0-9a-fA-F]{6}$/.test(s);
 }
-import { useCart } from '@/components/CartProvider';
-import { usePopup } from '@/components/PopupProvider';
-import { trackEvent } from '@/lib/sessionId';
 
 export default function AddToCart({
   product,
@@ -27,6 +28,7 @@ export default function AddToCart({
     return init;
   });
   const [added, setAdded] = useState(false);
+  const [showSizeModal, setShowSizeModal] = useState(false);
 
   function handleAdd() {
     const doAdd = () => {
@@ -47,52 +49,66 @@ export default function AddToCart({
 
   return (
     <div className="flex flex-col gap-5">
-      {groups.map(group => (
-        <div key={group.name}>
-          <p className="text-xs uppercase tracking-widest text-gray-400 font-semibold mb-2">{group.name}</p>
-          <div className="flex flex-wrap gap-2">
-            {group.options.map(opt => {
-              const isColor = isHexColor(opt);
-              const selected = selections[group.name] === opt;
-              return isColor ? (
+      {groups.map(group => {
+        const hasSizeOptions = group.options.some(opt => !isHexColor(opt));
+        return (
+          <div key={group.name}>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs uppercase tracking-widest text-gray-400 font-semibold">{group.name}</p>
+              {hasSizeOptions && (
                 <button
-                  key={opt}
                   type="button"
-                  onClick={() => {
-                    const next = { ...selections, [group.name]: opt };
-                    setSelections(next);
-                    onSelectionChange?.(next);
-                  }}
-                  title={opt}
-                  className={`w-8 h-8 rounded-full border-2 transition-all duration-150 ${
-                    selected
-                      ? 'border-black ring-2 ring-black ring-offset-1'
-                      : 'border-gray-200 hover:border-gray-400'
-                  }`}
-                  style={{ backgroundColor: opt }}
-                />
-              ) : (
-                <button
-                  key={opt}
-                  type="button"
-                  onClick={() => {
-                    const next = { ...selections, [group.name]: opt };
-                    setSelections(next);
-                    onSelectionChange?.(next);
-                  }}
-                  className={`px-4 py-2 text-xs uppercase tracking-wide rounded-full border transition-all duration-150 ${
-                    selected
-                      ? 'border-black bg-black text-white'
-                      : 'border-gray-200 text-gray-600 hover:border-black hover:text-black'
-                  }`}
+                  onClick={() => setShowSizeModal(true)}
+                  className="text-[10px] uppercase tracking-widest text-gray-400 underline underline-offset-2 hover:text-black transition-colors"
                 >
-                  {opt}
+                  ¿Cuál es mi talla?
                 </button>
-              );
-            })}
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {group.options.map(opt => {
+                const isColor = isHexColor(opt);
+                const selected = selections[group.name] === opt;
+                return isColor ? (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => {
+                      const next = { ...selections, [group.name]: opt };
+                      setSelections(next);
+                      onSelectionChange?.(next);
+                    }}
+                    title={opt}
+                    className={`w-8 h-8 rounded-full border-2 transition-all duration-150 ${
+                      selected
+                        ? 'border-black ring-2 ring-black ring-offset-1'
+                        : 'border-gray-200 hover:border-gray-400'
+                    }`}
+                    style={{ backgroundColor: opt }}
+                  />
+                ) : (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => {
+                      const next = { ...selections, [group.name]: opt };
+                      setSelections(next);
+                      onSelectionChange?.(next);
+                    }}
+                    className={`px-4 py-2 text-xs uppercase tracking-wide rounded-full border transition-all duration-150 ${
+                      selected
+                        ? 'border-black bg-black text-white'
+                        : 'border-gray-200 text-gray-600 hover:border-black hover:text-black'
+                    }`}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
 
       {/* Urgencia por últimas unidades (manual) */}
       {!product.soldOut && product.lastUnits && !(product.stockTracked && product.stock != null && product.stock > 0 && product.stock <= 5) && (
@@ -134,6 +150,29 @@ export default function AddToCart({
         {product.soldOut ? 'Producto agotado' : added ? '✓ ¡Añadido al carrito!' : '+ Añadir al carrito'}
       </button>
 
+      {/* Trust signals */}
+      <div className="flex flex-col gap-2.5 border-t border-gray-100 pt-4">
+        <div className="flex items-center gap-3 text-xs text-gray-500">
+          <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+          </svg>
+          Envío seguro a toda Colombia
+        </div>
+        <div className="flex items-center gap-3 text-xs text-gray-500">
+          <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+          Cambios fáciles por talla — 15 días
+        </div>
+        <div className="flex items-center gap-3 text-xs text-gray-500">
+          <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+          </svg>
+          Pago 100% protegido
+        </div>
+      </div>
+
+      {showSizeModal && <SizeModal onClose={() => setShowSizeModal(false)} />}
     </div>
   );
 }

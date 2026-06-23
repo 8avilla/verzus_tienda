@@ -101,7 +101,20 @@ export default async function Home() {
             </div>
           </div>
           <div className="flex flex-col items-center sm:items-end gap-2">
-
+            <div className="flex gap-4">
+              <a
+                href="/politicas"
+                className="text-[10px] uppercase tracking-widest text-gray-400 hover:text-black transition-colors"
+              >
+                Políticas
+              </a>
+              <a
+                href="/terminos"
+                className="text-[10px] uppercase tracking-widest text-gray-400 hover:text-black transition-colors"
+              >
+                Términos
+              </a>
+            </div>
             <a
               href="/admin"
               className="text-[10px] uppercase tracking-widest text-gray-400 hover:text-black transition-colors"

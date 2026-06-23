@@ -19,7 +19,7 @@ const dmSerifDisplay = DM_Serif_Display({
   style: ["normal", "italic"],
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://verzus.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://verzus.co';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

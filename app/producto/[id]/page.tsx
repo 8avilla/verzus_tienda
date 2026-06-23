@@ -9,10 +9,11 @@ import ProductColorView from './ProductColorView';
 import StickyAddToCart from './StickyAddToCart';
 import ProductViewTracker from './ProductViewTracker';
 import RelatedProducts from './RelatedProducts';
+import ProductReviews from './ProductReviews';
 
 export const revalidate = 60;
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://verzus.com';
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://verzus.co';
 
 export async function generateStaticParams() {
   try {
@@ -137,6 +138,8 @@ export default async function ProductoPage({ params }: { params: Promise<{ id: s
           <ProductColorView product={product} />
         </div>
       </main>
+
+      <ProductReviews productId={product.id} />
 
       <RelatedProducts category={product.category} excludeId={product.id} />
 

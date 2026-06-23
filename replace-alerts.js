@@ -1,5 +1,5 @@
 const fs = require('fs');
-const path = '/home/ivan/Documentos/Proyectos/latiendasilvestrista/app/admin/pedidos/OrdersList.tsx';
+const path = '/home/ivan/Documentos/Proyectos/verzus/app/admin/pedidos/OrdersList.tsx';
 let content = fs.readFileSync(path, 'utf8');
 
 // Insert imports and helpers
