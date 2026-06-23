@@ -59,13 +59,23 @@ async function getCategories(): Promise<CategoryDoc[]> {
   }
 }
 
+async function getHeroImage(): Promise<string> {
+  try {
+    const db = await getDb();
+    const doc = await db.collection('settings').findOne({ _id: 'main' as unknown as import('mongodb').ObjectId });
+    return (doc?.heroImage as string) || '/images/portada.jpeg';
+  } catch {
+    return '/images/portada.jpeg';
+  }
+}
+
 export default async function Home() {
-  const [products, categories] = await Promise.all([getProducts(), getCategories()]);
+  const [products, categories, heroImage] = await Promise.all([getProducts(), getCategories(), getHeroImage()]);
 
   return (
     <main className="flex-1 w-full">
       <PageviewTracker />
-      <Hero />
+      <Hero heroImage={heroImage} />
 
       <section id="catalogo" className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-16">
         <ProductGrid products={products} categories={categories} />

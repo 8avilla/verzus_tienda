@@ -13,6 +13,7 @@ interface Settings {
     description: string;
     logoUrl: string;
   };
+  heroImage?: string;
   shipping: {
     baseCost: number;
     freeThreshold: number;
@@ -36,6 +37,26 @@ export default function ConfigForm({ initial }: Props) {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
   const [activeTab, setActiveTab] = useState<Tab>('GENERAL');
+  const [uploadingHero, setUploadingHero] = useState(false);
+
+  async function handleHeroUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingHero(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      if (!res.ok) throw new Error('Error subiendo imagen');
+      const { url } = await res.json();
+      setSettings(prev => ({ ...prev, heroImage: url }));
+    } catch {
+      setError('No se pudo subir la imagen de portada');
+    } finally {
+      setUploadingHero(false);
+      e.target.value = '';
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -140,6 +161,67 @@ export default function ConfigForm({ initial }: Props) {
                   onChange={e => updateNested('storeInfo', 'description', e.target.value)}
                   className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-black resize-none"
                 />
+              </div>
+            </div>
+
+            {/* Imagen portada (Hero) */}
+            <div className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-4">
+              <div>
+                <h2 className="text-sm font-semibold text-black">Imagen de portada</h2>
+                <p className="text-xs text-gray-400 mt-0.5">La imagen principal del hero en la página de inicio</p>
+              </div>
+
+              <div className="flex items-start gap-4">
+                {/* Preview */}
+                <div className="relative w-24 h-32 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
+                  {settings.heroImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={settings.heroImage} alt="Portada" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-300">
+                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 18h16.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2 flex-1">
+                  <label className={`inline-flex items-center gap-2 cursor-pointer px-4 py-2 rounded-lg border text-sm font-medium transition-colors w-fit ${
+                    uploadingHero ? 'opacity-50 cursor-not-allowed border-gray-200 text-gray-400' : 'border-gray-300 text-black hover:border-black'
+                  }`}>
+                    {uploadingHero ? (
+                      <>
+                        <span className="w-4 h-4 border-2 border-gray-300 border-t-black rounded-full animate-spin" />
+                        Subiendo...
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                        </svg>
+                        Subir imagen
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      disabled={uploadingHero}
+                      onChange={handleHeroUpload}
+                    />
+                  </label>
+                  <p className="text-[10px] text-gray-400">JPG, PNG o WebP · Tamaño ideal: 1200×900px</p>
+                  {settings.heroImage && (
+                    <button
+                      type="button"
+                      onClick={() => setSettings(prev => ({ ...prev, heroImage: '' }))}
+                      className="text-[10px] text-gray-400 hover:text-red-500 transition-colors text-left"
+                    >
+                      Quitar imagen
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 

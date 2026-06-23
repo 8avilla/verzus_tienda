@@ -8,6 +8,7 @@ import { Product } from '@/types';
 import ProductColorView from './ProductColorView';
 import StickyAddToCart from './StickyAddToCart';
 import ProductViewTracker from './ProductViewTracker';
+import RelatedProducts from './RelatedProducts';
 
 export const revalidate = 60;
 
@@ -136,6 +137,8 @@ export default async function ProductoPage({ params }: { params: Promise<{ id: s
           <ProductColorView product={product} />
         </div>
       </main>
+
+      <RelatedProducts category={product.category} excludeId={product.id} />
 
       <StickyAddToCart
         productName={product.name}

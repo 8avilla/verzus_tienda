@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useCart } from '@/components/CartProvider';
+import SearchModal from '@/components/SearchModal';
 
 const NAV_LINKS = [
   { label: 'Tallas',    href: '#tallas' },
@@ -26,6 +27,7 @@ export default function Header({ navCategories = [] }: Props) {
   const pathname = usePathname();
   const isHome = pathname === '/';
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -113,17 +115,17 @@ export default function Header({ navCategories = [] }: Props) {
           {/* Derecha: iconos mobile + carrito desktop */}
           <div className="flex items-center gap-3">
 
-            {/* Lupa — solo mobile */}
-            <a
-              href={isHome ? '#catalogo' : '/#catalogo'}
-              className="lg:hidden flex items-center justify-center w-8 h-8 text-black"
-              aria-label="Ver productos"
+            {/* Lupa — mobile y desktop */}
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="flex items-center justify-center w-8 h-8 text-black"
+              aria-label="Buscar"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8}
                   d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
               </svg>
-            </a>
+            </button>
 
             {/* Bolsa — solo mobile */}
             <button
@@ -240,6 +242,8 @@ export default function Header({ navCategories = [] }: Props) {
 
         </div>
       </div>
+
+      <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }

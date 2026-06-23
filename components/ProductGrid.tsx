@@ -9,10 +9,23 @@ interface ProductGridProps {
   categories: CategoryDoc[];
 }
 
+const PRICE_RANGES = [
+  { label: 'Todos', min: 0, max: Infinity },
+  { label: '< $50.000', min: 0, max: 50000 },
+  { label: '$50k – $100k', min: 50000, max: 100000 },
+  { label: '> $100.000', min: 100000, max: Infinity },
+];
+
 export default function ProductGrid({ products, categories }: ProductGridProps) {
   const [active, setActive] = useState('todos');
+  const [priceRange, setPriceRange] = useState(0);
 
-  const filtered = active === 'todos' ? products : products.filter(p => p.category === active);
+  const filtered = products.filter(p => {
+    const categoryMatch = active === 'todos' || p.category === active;
+    const range = PRICE_RANGES[priceRange];
+    const priceMatch = p.price >= range.min && p.price < range.max;
+    return categoryMatch && priceMatch;
+  });
 
   const allFilters = [
     { label: 'Todos', value: 'todos' },
@@ -39,7 +52,7 @@ export default function ProductGrid({ products, categories }: ProductGridProps) 
         </div>
       </div>
 
-      {/* Filtros — tabs con underline */}
+      {/* Filtros categoría — tabs con underline */}
       <div className="flex gap-6 overflow-x-auto scrollbar-none border-b border-gray-100 pb-0">
         {allFilters.map(f => (
           <button
@@ -52,6 +65,24 @@ export default function ProductGrid({ products, categories }: ProductGridProps) 
             }`}
           >
             {f.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Filtros precio — pills */}
+      <div className="flex gap-2 flex-wrap">
+        {PRICE_RANGES.map((r, i) => (
+          <button
+            key={i}
+            onClick={() => setPriceRange(i)}
+            className={`px-3 py-1 text-[11px] font-semibold uppercase tracking-wide rounded-full border transition-all duration-150 ${
+              priceRange === i
+                ? 'text-white border-transparent'
+                : 'border-gray-200 text-gray-500 hover:border-gray-800 hover:text-black bg-white'
+            }`}
+            style={priceRange === i ? { backgroundColor: 'var(--accent)', borderColor: 'var(--accent)' } : undefined}
+          >
+            {r.label}
           </button>
         ))}
       </div>

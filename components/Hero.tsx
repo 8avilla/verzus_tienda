@@ -8,7 +8,7 @@ const CHIPS = [
   'Pago seguro en línea',
 ];
 
-export default function Hero() {
+export default function Hero({ heroImage = '/images/portada.jpeg' }: { heroImage?: string }) {
   function scrollToCatalog() {
     document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' });
   }
@@ -19,11 +19,12 @@ export default function Hero() {
       {/* ── MOBILE: imagen full-width con overlay ── */}
       <div className="relative w-full aspect-[4/3] lg:hidden">
         <Image
-          src="/images/portada.jpeg"
+          src={heroImage}
           alt="Verzus colección"
           fill
           className="object-cover object-center"
           priority
+          unoptimized={heroImage.startsWith('http')}
         />
 
         {/* Overlay */}
@@ -115,11 +116,12 @@ export default function Hero() {
         {/* Columna imagen */}
         <div className="relative w-full rounded-2xl overflow-hidden">
           <Image
-            src="/images/portada.jpeg"
+            src={heroImage}
             alt="Verzus"
             fill
             className="object-cover object-center"
             priority
+            unoptimized={heroImage.startsWith('http')}
           />
         </div>
 

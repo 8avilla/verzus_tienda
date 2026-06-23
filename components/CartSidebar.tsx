@@ -1,9 +1,18 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart, buildSelectionsKey } from '@/components/CartProvider';
 import Image from 'next/image';
+import Link from 'next/link';
+
+interface UpsellProduct {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  image: string | null;
+}
 
 
 function formatSelections(selections?: Record<string, string>): string {
@@ -15,6 +24,17 @@ export default function CartSidebar() {
   const { items, isOpen, closeSidebar, removeItem, updateQty, clearCart, totalItems, totalPrice } =
     useCart();
   const router = useRouter();
+  const [upsell, setUpsell] = useState<UpsellProduct[]>([]);
+
+  useEffect(() => {
+    if (!isOpen || items.length === 0) { setUpsell([]); return; }
+    const category = items[0].product.category;
+    const exclude = items.map(i => i.product.id).join(',');
+    fetch(`/api/upsell?category=${encodeURIComponent(category)}&exclude=${exclude}`)
+      .then(r => r.json())
+      .then(setUpsell)
+      .catch(() => setUpsell([]));
+  }, [isOpen, items]);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -145,6 +165,36 @@ export default function CartSidebar() {
             </ul>
           )}
         </div>
+
+        {/* Upsell */}
+        {upsell.length > 0 && (
+          <div className="px-6 py-4 border-t border-gray-100 bg-gray-50">
+            <p className="text-[10px] uppercase tracking-widest text-gray-400 mb-3">También te puede gustar</p>
+            <div className="flex flex-col gap-3">
+              {upsell.map(p => (
+                <Link
+                  key={p.id}
+                  href={`/producto/${p.id}`}
+                  onClick={closeSidebar}
+                  className="flex items-center gap-3 group"
+                >
+                  <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-200 shrink-0">
+                    {p.image && (
+                      <Image src={p.image} alt={p.name} fill sizes="48px" className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-black truncate group-hover:opacity-70 transition-opacity">{p.name}</p>
+                    <p className="text-xs text-gray-400">${p.price.toLocaleString('es-CO')}</p>
+                  </div>
+                  <svg className="w-4 h-4 text-gray-300 group-hover:text-black transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Footer */}
         {items.length > 0 && (
