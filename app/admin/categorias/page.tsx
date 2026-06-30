@@ -10,6 +10,8 @@ async function getCategories(): Promise<CategoryDoc[]> {
     id: doc._id.toString(),
     name: doc.name as string,
     slug: doc.slug as string,
+    subtitle: (doc.subtitle as string) ?? '',
+    active: doc.active !== false,
   }));
 }
 

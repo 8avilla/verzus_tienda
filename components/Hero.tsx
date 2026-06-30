@@ -1,128 +1,142 @@
 'use client';
+import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import { HeroSlide } from '@/types/homepage';
 
-const CHIPS = [
-  'Ropa para gente como tú',
-  'Diseños exclusivos',
-  'Envíos a Colombia',
-  'Pago seguro en línea',
-];
+const DEFAULT_SLIDE: HeroSlide = {
+  image: '/images/imagen_portada.png',
+  eyebrow: 'Nueva colección',
+  headingLine1: 'Diseñado para moverte.',
+  headingLine2: 'Hecho para acompañarte.',
+  body: 'Activewear premium que combina rendimiento, elegancia y estilo para tu vida activa.',
+  cta: 'Descubrir colección',
+};
 
-export default function Hero({ heroImage = '/images/portada.jpeg' }: { heroImage?: string }) {
+interface HeroProps {
+  slides?: HeroSlide[];
+}
+
+export default function Hero({ slides = [DEFAULT_SLIDE] }: HeroProps) {
+  const items = slides.length > 0 ? slides : [DEFAULT_SLIDE];
+  const [current, setCurrent] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (items.length <= 1) return;
+    const id = setTimeout(() => setCurrent(i => (i + 1) % items.length), 5000);
+    return () => clearTimeout(id);
+  }, [current, items.length]);
+
   function scrollToCatalog() {
     document.getElementById('catalogo')?.scrollIntoView({ behavior: 'smooth' });
   }
 
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null || items.length <= 1) return;
+    const delta = touchStartX.current - e.changedTouches[0].clientX;
+    if (Math.abs(delta) < 40) return;
+    setCurrent(i => delta > 0 ? (i + 1) % items.length : (i - 1 + items.length) % items.length);
+    touchStartX.current = null;
+  }
+
+  const active = items[current];
+
   return (
-    <section>
-
-      {/* ── MOBILE: imagen full-width con overlay ── */}
-      <div className="relative w-full aspect-[16/9] lg:hidden">
+    <section
+      className="relative w-full aspect-[4/5] sm:aspect-[16/10] lg:aspect-[21/8] lg:min-h-[560px] overflow-hidden bg-black"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Imágenes — crossfade entre slides */}
+      {items.map((slide, i) => (
         <Image
-          src={heroImage}
-          alt="Verzus colección"
+          key={i}
+          src={slide.image || DEFAULT_SLIDE.image!}
+          alt={slide.headingLine1 || 'Verzus'}
           fill
-          className="object-cover object-center"
-          priority
-          unoptimized={heroImage.startsWith('http')}
+          className={`object-cover object-center transition-opacity duration-700 ease-in-out ${
+            i === current ? 'opacity-100' : 'opacity-0'
+          }`}
+          sizes="100vw"
+          priority={i === 0}
+          unoptimized={(slide.image || '').startsWith('http')}
         />
+      ))}
 
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/40" />
+      {/* Overlay para legibilidad del texto */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/55 via-black/25 to-black/5" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
 
-        {/* Texto centrado */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center gap-1.5 px-4">
+      {/* Texto — mismo layout en mobile y desktop */}
+      <div className="absolute inset-0 flex flex-col justify-center items-start text-left text-white px-6 sm:px-10 lg:px-16 gap-3 lg:gap-5 max-w-md lg:max-w-xl">
+        {active.eyebrow && (
           <p className="text-[10px] uppercase tracking-[0.3em] font-semibold text-white/80">
-            ✦ Nueva colección
+            ✦ {active.eyebrow}
           </p>
-          <h1
-            className="text-4xl sm:text-5xl font-black uppercase tracking-tight leading-none"
-            style={{ fontFamily: 'var(--font-dm-serif)' }}
-          >
-            Verzus
-          </h1>
-          <p className="text-[11px] uppercase tracking-[0.25em] text-white/60 mt-1">
-            2025
-          </p>
-        </div>
-
-        {/* CTA visible */}
-        <button
-          onClick={scrollToCatalog}
-          className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-white text-black text-[11px] font-semibold uppercase tracking-widest px-6 py-2.5 rounded-full shadow-lg hover:bg-gray-100 active:scale-95 transition-all"
+        )}
+        <h1
+          className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl uppercase leading-[1.05] tracking-tight"
+          style={{ fontFamily: 'var(--font-dm-serif)' }}
         >
-          Ver colección →
-        </button>
+          {active.headingLine1 && <span className="block">{active.headingLine1}</span>}
+          {active.headingLine2 && <span className="block">{active.headingLine2}</span>}
+        </h1>
+        {active.body && <span className="w-8 h-px bg-white/60" />}
+        {active.body && (
+          <p className="text-xs sm:text-sm text-white/85 max-w-xs lg:max-w-sm leading-relaxed">
+            {active.body}
+          </p>
+        )}
+        {active.cta && (
+          <button
+            onClick={scrollToCatalog}
+            className="mt-1 bg-white text-black text-[11px] sm:text-xs font-semibold uppercase tracking-widest px-6 sm:px-7 py-2.5 sm:py-3 rounded-full shadow-lg hover:bg-gray-100 active:scale-95 transition-all w-fit"
+          >
+            {active.cta}
+          </button>
+        )}
       </div>
 
-      {/* ── DESKTOP: layout 2 columnas ── */}
-      <div className="hidden lg:grid max-w-7xl mx-auto px-6 py-20 grid-cols-2 gap-16 items-stretch">
-
-        {/* Columna texto */}
-        <div className="flex flex-col gap-6">
-          <p className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-black font-semibold">
-            <span className="text-base leading-none">✦</span>
-            Nueva colección
-          </p>
-
-          <h1
-            className="text-6xl lg:text-7xl leading-[1.02] tracking-tight"
-            style={{ fontFamily: 'var(--font-dm-serif)' }}
-          >
-            <span className="text-black block">Ropa hecha</span>
-            <span className="italic block" style={{ color: 'var(--accent)' }}>para ti.</span>
-          </h1>
-
-          <p className="text-sm text-gray-500 max-w-sm leading-relaxed">
-            Verzus es una marca de ropa para gente como tú. Camisetas, gorras y accesorios
-            con diseños exclusivos que dicen quién eres sin decir nada.
-          </p>
-
-          <div className="flex flex-wrap gap-3">
+      {/* Indicadores — puntos en mobile */}
+      {items.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex lg:hidden gap-1.5">
+          {items.map((_, i) => (
             <button
-              onClick={scrollToCatalog}
-              className="text-white px-6 py-3 rounded-full text-sm font-semibold transition-colors"
-              style={{ backgroundColor: 'var(--accent)' }}
-              onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'var(--accent-hover)')}
-              onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'var(--accent)')}
+              key={i}
+              onClick={() => setCurrent(i)}
+              aria-label={`Ir al slide ${i + 1}`}
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                i === current ? 'w-5 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/80'
+              }`}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Indicadores — numerados verticales en desktop */}
+      {items.length > 1 && (
+        <div className="hidden lg:flex absolute right-10 top-1/2 -translate-y-1/2 flex-col items-center gap-4">
+          {items.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              aria-label={`Ir al slide ${i + 1}`}
+              className="flex flex-col items-center gap-2"
             >
-              Ver colección →
+              {i === current && <span className="w-4 h-px bg-white" />}
+              <span className={`text-[11px] tracking-widest transition-colors ${
+                i === current ? 'text-white font-semibold' : 'text-white/50'
+              }`}>
+                {String(i + 1).padStart(2, '0')}
+              </span>
             </button>
-          </div>
-
-          <p
-            className="text-xs text-gray-400"
-            style={{ fontFamily: 'var(--font-dm-serif)', fontStyle: 'italic' }}
-          >
-            Pago seguro en línea · Envíos a toda Colombia
-          </p>
-
-          <div className="grid grid-cols-2 gap-2">
-            {CHIPS.map((chip) => (
-              <div
-                key={chip}
-                className="flex items-center gap-2 border border-gray-200 rounded-full px-4 py-2 text-xs text-gray-600"
-              >
-                <span className="text-black font-bold leading-none">·</span>
-                {chip}
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
-
-        {/* Columna imagen */}
-        <div className="relative w-full rounded-2xl overflow-hidden">
-          <Image
-            src={heroImage}
-            alt="Verzus"
-            fill
-            className="object-cover object-center"
-            priority
-            unoptimized={heroImage.startsWith('http')}
-          />
-        </div>
-
-      </div>
+      )}
     </section>
   );
 }

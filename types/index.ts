@@ -3,6 +3,7 @@ export interface CategoryDoc {
   name: string;
   slug: string;
   subtitle?: string;
+  active?: boolean;
 }
 
 export interface VariantGroup {

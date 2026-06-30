@@ -51,6 +51,7 @@ export default function ProductCard({ product, priority = false, delay = 0 }: Pr
   const { openPopup } = usePopup();
   const [selections, setSelections] = useState<Record<string, string>>(() => initSelections(product));
   const [added, setAdded] = useState(false);
+  const [liked, setLiked] = useState(false);
   const [imgIdx, setImgIdx] = useState(0);
   const [visible, setVisible] = useState(false);
   const cardRef = useRef<HTMLElement>(null);
@@ -58,7 +59,6 @@ export default function ProductCard({ product, priority = false, delay = 0 }: Pr
 
   const images = product.images ?? [];
   const hasMultiple = images.length > 1;
-  const currentImage = images[imgIdx] ?? '';
 
   useEffect(() => {
     const el = cardRef.current;
@@ -127,17 +127,23 @@ export default function ProductCard({ product, priority = false, delay = 0 }: Pr
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {currentImage ? (
-          <Image
-            src={currentImage}
-            alt={product.name}
-            fill
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.07]"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            priority={priority}
-          />
-        ) : (
+        {images.length === 0 ? (
           <div className="w-full h-full bg-gray-100" />
+        ) : (
+          images.map((src, i) => (
+            <Image
+              key={src}
+              src={src}
+              alt={i === 0 ? product.name : `${product.name} ${i + 1}`}
+              fill
+              className={`object-cover transition-[opacity,transform] duration-300 ease-out group-hover:scale-[1.07] group-hover:duration-700 ${
+                i === imgIdx ? 'opacity-100' : 'opacity-0'
+              }`}
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              priority={priority && i === 0}
+              loading={priority && i === 0 ? undefined : 'lazy'}
+            />
+          ))
         )}
 
         {/* Overlay hover — solo desktop */}
@@ -155,19 +161,37 @@ export default function ProductCard({ product, priority = false, delay = 0 }: Pr
           </div>
         )}
 
-        {/* Badge stock bajo / últimas unidades */}
-        {!product.soldOut && product.stockTracked && product.stock != null && product.stock > 0 && product.stock <= 5 && (
-          <div className={`absolute top-2 right-2 text-white text-[9px] uppercase tracking-wider font-bold px-2 py-1 rounded-full shadow-sm ${
-            product.stock <= 2 ? 'bg-gray-500 animate-pulse' : 'bg-orange-400'
-          }`}>
-            {product.stock <= 2 ? `¡Último${product.stock === 1 ? '' : 's'}!` : `Solo ${product.stock}`}
-          </div>
-        )}
-        {!product.soldOut && product.lastUnits && !(product.stockTracked && product.stock != null && product.stock > 0 && product.stock <= 5) && (
-          <div className="absolute top-2 right-2 bg-orange-500 animate-pulse text-white text-[9px] uppercase tracking-wider font-bold px-2 py-1 rounded-full shadow-sm">
-            Últimas
-          </div>
-        )}
+        {/* Corazón favorito + badges de stock — esquina superior derecha */}
+        <div className="absolute top-2 right-2 flex flex-col items-end gap-1.5">
+          <button
+            onClick={e => { e.preventDefault(); e.stopPropagation(); setLiked(l => !l); }}
+            aria-label={liked ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+            className="w-7 h-7 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-sm transition-colors shrink-0"
+          >
+            <svg
+              className="w-3.5 h-3.5"
+              fill={liked ? 'currentColor' : 'none'}
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              style={{ color: liked ? 'var(--accent)' : '#1a1a1a' }}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+            </svg>
+          </button>
+
+          {!product.soldOut && product.stockTracked && product.stock != null && product.stock > 0 && product.stock <= 5 && (
+            <div className={`text-white text-[9px] uppercase tracking-wider font-bold px-2 py-1 rounded-full shadow-sm whitespace-nowrap ${
+              product.stock <= 2 ? 'bg-gray-500 animate-pulse' : 'bg-orange-400'
+            }`}>
+              {product.stock <= 2 ? `¡Último${product.stock === 1 ? '' : 's'}!` : `Solo ${product.stock}`}
+            </div>
+          )}
+          {!product.soldOut && product.lastUnits && !(product.stockTracked && product.stock != null && product.stock > 0 && product.stock <= 5) && (
+            <div className="bg-orange-500 animate-pulse text-white text-[9px] uppercase tracking-wider font-bold px-2 py-1 rounded-full shadow-sm whitespace-nowrap">
+              Últimas
+            </div>
+          )}
+        </div>
 
         {/* Navegación entre imágenes */}
         {hasMultiple && (
@@ -237,14 +261,20 @@ export default function ProductCard({ product, priority = false, delay = 0 }: Pr
               <div className="flex flex-wrap gap-1">
                 {group.options.map(opt => {
                   const isColor = isColorGroup(group.name);
-                  const cssColor = isColor ? (COLOR_MAP[opt.toLowerCase()] ?? '#e5e7eb') : null;
+                  const cssColor = isColor
+                    ? (opt.match(/^#[0-9a-fA-F]{3,8}$/) ? opt : (COLOR_MAP[opt.toLowerCase()] ?? '#e5e7eb'))
+                    : null;
                   const isSelected = selections[group.name] === opt;
 
                   if (isColor) {
                     return (
                       <button
                         key={opt}
-                        onClick={() => setSelections(prev => ({ ...prev, [group.name]: opt }))}
+                        onClick={() => {
+                          setSelections(prev => ({ ...prev, [group.name]: opt }));
+                          const mapped = group.imageMap?.[opt];
+                          if (mapped !== undefined && mapped < images.length) setImgIdx(mapped);
+                        }}
                         title={opt}
                         aria-label={opt}
                         className={`w-4 h-4 rounded-full border-2 transition-all duration-150 shrink-0 ${

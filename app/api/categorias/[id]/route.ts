@@ -32,6 +32,17 @@ export async function PUT(request: Request, { params }: Context) {
   return Response.json({ ok: true });
 }
 
+export async function PATCH(request: Request, { params }: Context) {
+  const { id } = await params;
+  const db = await getDb();
+  const { active } = await request.json();
+  await db.collection('categories').updateOne(
+    { _id: new ObjectId(id) },
+    { $set: { active: Boolean(active), updatedAt: new Date() } }
+  );
+  return Response.json({ ok: true });
+}
+
 export async function DELETE(_request: Request, { params }: Context) {
   const { id } = await params;
   const db = await getDb();

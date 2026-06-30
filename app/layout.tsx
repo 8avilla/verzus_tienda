@@ -89,7 +89,7 @@ async function getAnnouncementSettings(): Promise<{ text: string; enabled: boole
 async function getNavCategories(): Promise<{ id: string; name: string; slug: string }[]> {
   try {
     const db = await getDb();
-    const docs = await db.collection('categories').find({}).sort({ order: 1, name: 1 }).toArray();
+    const docs = await db.collection('categories').find({ active: { $ne: false } }).sort({ order: 1, name: 1 }).toArray();
     return docs.map(doc => ({ id: doc._id.toString(), name: doc.name as string, slug: doc.slug as string }));
   } catch { return []; }
 }

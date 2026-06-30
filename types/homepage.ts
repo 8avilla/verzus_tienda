@@ -3,10 +3,22 @@ export type BlockType =
   | 'category_carousel'
   | 'image_banner'
   | 'text_block'
-  | 'featured_products';
+  | 'featured_products'
+  | 'collection_grid';
 
-export interface HeroConfig {
+export interface HeroSlide {
   image?: string;
+  eyebrow?: string;
+  headingLine1?: string;
+  headingLine2?: string;
+  body?: string;
+  cta?: string;
+  mobileTitle?: string;
+  year?: string;
+}
+
+export interface HeroConfig extends HeroSlide {
+  slides?: HeroSlide[];
 }
 
 export interface CarouselConfig {
@@ -33,7 +45,17 @@ export interface FeaturedConfig {
   title?: string;
 }
 
-export type SectionConfig = HeroConfig | CarouselConfig | BannerConfig | TextConfig | FeaturedConfig;
+export interface CollectionGridItem {
+  image?: string;
+  title: string;
+  link?: string;
+}
+
+export interface CollectionGridConfig {
+  items: CollectionGridItem[];
+}
+
+export type SectionConfig = HeroConfig | CarouselConfig | BannerConfig | TextConfig | FeaturedConfig | CollectionGridConfig;
 
 export interface HomepageSection {
   id: string;

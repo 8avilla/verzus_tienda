@@ -21,20 +21,23 @@ export default function ProductCarousel({ title, subtitle, categoryName, product
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         {/* Header */}
-        <div className="mb-6 lg:mb-8 text-center flex flex-col items-center gap-1.5">
-          <h2 className="text-[26px] font-medium leading-tight" style={{ color: '#282828' }}>
-            {title}
-          </h2>
-          {subtitle && (
-            <p className="text-[17px] font-normal" style={{ color: '#282828' }}>{subtitle}</p>
+        <div className="mb-6 lg:mb-8 flex items-end justify-between gap-4">
+          <div className="flex flex-col gap-1">
+            <h2 className="text-xl sm:text-2xl uppercase font-semibold tracking-tight" style={{ color: '#282828' }}>
+              {title}
+            </h2>
+            {subtitle && (
+              <p className="text-sm font-normal text-gray-500">{subtitle}</p>
+            )}
+          </div>
+          {categoryName && (
+            <Link
+              href={`/coleccion?categoria=${encodeURIComponent(categoryName)}`}
+              className="shrink-0 text-[11px] uppercase tracking-widest font-semibold text-gray-500 hover:text-black transition-colors whitespace-nowrap"
+            >
+              Ver todas
+            </Link>
           )}
-          <Link
-            href={`/coleccion?categoria=${encodeURIComponent(categoryName)}`}
-            className="text-[15px] font-normal tracking-wide underline underline-offset-4 hover:opacity-60 transition-opacity mt-0.5"
-            style={{ color: '#282828' }}
-          >
-            Tienda de {title}
-          </Link>
         </div>
 
         {/* Grid */}

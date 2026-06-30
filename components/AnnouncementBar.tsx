@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 interface Props {
   text?: string;
@@ -12,6 +14,8 @@ const DEFAULT_TEXT = 'Nueva Colección · Envíos a toda Colombia · Pago Seguro
 export default function AnnouncementBar({ text = DEFAULT_TEXT, enabled = true }: Props) {
   const messages = (text).split('·').map(s => s.trim()).filter(Boolean);
   const [idx, setIdx] = useState(0);
+  const pathname = usePathname();
+  const isHome = pathname === '/';
 
   useEffect(() => {
     if (messages.length <= 1) return;
@@ -28,7 +32,7 @@ export default function AnnouncementBar({ text = DEFAULT_TEXT, enabled = true }:
     <div
       className="bg-black text-white py-2.5 select-none"
     >
-      <div className="max-w-7xl mx-auto px-4 flex items-center justify-between gap-3">
+      <div className="max-w-7xl mx-auto px-4 flex items-center gap-3">
         <button
           onClick={prev}
           aria-label="Anterior"
@@ -48,6 +52,25 @@ export default function AnnouncementBar({ text = DEFAULT_TEXT, enabled = true }:
         >
           ›
         </button>
+
+        {/* Utilidades — solo desktop */}
+        <div className="hidden lg:flex items-center gap-5 shrink-0 ml-2 pl-4 border-l border-white/20">
+          <span className="text-[10px] uppercase tracking-widest text-white/70 whitespace-nowrap">
+            Colombia (COP $)
+          </span>
+          <a
+            href={isHome ? '#faq' : '/#faq'}
+            className="text-[10px] uppercase tracking-widest text-white/70 hover:text-white transition-colors whitespace-nowrap"
+          >
+            Ayuda
+          </a>
+          <Link
+            href="/seguimiento"
+            className="text-[10px] uppercase tracking-widest text-white/70 hover:text-white transition-colors whitespace-nowrap"
+          >
+            Mi cuenta
+          </Link>
+        </div>
       </div>
     </div>
   );

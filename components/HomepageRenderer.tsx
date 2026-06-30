@@ -1,8 +1,10 @@
 import Link from 'next/link';
 import Hero from '@/components/Hero';
+import TrustBadges from '@/components/TrustBadges';
+import CollectionGrid from '@/components/CollectionGrid';
 import ProductCarousel from '@/components/ProductCarousel';
 import CategoryBanner from '@/components/CategoryBanner';
-import { HomepageSection, HeroConfig, CarouselConfig, BannerConfig, TextConfig, FeaturedConfig } from '@/types/homepage';
+import { HomepageSection, HeroConfig, CarouselConfig, BannerConfig, TextConfig, FeaturedConfig, CollectionGridConfig } from '@/types/homepage';
 import { Product, CategoryDoc } from '@/types';
 
 interface Props {
@@ -21,7 +23,27 @@ export default function HomepageRenderer({ sections, allProducts, categoryMeta }
 
           case 'hero': {
             const cfg = section.config as HeroConfig;
-            return <Hero key={section.id} heroImage={cfg.image || '/images/portada.jpeg'} />;
+            const slides = cfg.slides && cfg.slides.length > 0
+              ? cfg.slides
+              : [{
+                  image: cfg.image,
+                  eyebrow: cfg.eyebrow,
+                  headingLine1: cfg.headingLine1,
+                  headingLine2: cfg.headingLine2,
+                  body: cfg.body,
+                  cta: cfg.cta,
+                }];
+            return (
+              <div key={section.id}>
+                <Hero slides={slides} />
+                <TrustBadges />
+              </div>
+            );
+          }
+
+          case 'collection_grid': {
+            const cfg = section.config as CollectionGridConfig;
+            return <CollectionGrid key={section.id} items={cfg.items ?? []} />;
           }
 
           case 'category_carousel': {

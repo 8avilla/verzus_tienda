@@ -57,7 +57,7 @@ async function getProducts(): Promise<Product[]> {
 async function getCategories(): Promise<CategoryDoc[]> {
   try {
     const db = await getDb();
-    const docs = await db.collection('categories').find({}).sort({ order: 1, name: 1 }).toArray();
+    const docs = await db.collection('categories').find({ active: { $ne: false } }).sort({ order: 1, name: 1 }).toArray();
     return docs.map(doc => ({
       id: doc._id.toString(),
       name: doc.name as string,

@@ -4,8 +4,8 @@ import { useState, useRef } from 'react';
 import Image from 'next/image';
 import Swal from 'sweetalert2';
 import {
-  HomepageSection, BlockType, HeroConfig, CarouselConfig,
-  BannerConfig, TextConfig, FeaturedConfig,
+  HomepageSection, BlockType, HeroConfig, HeroSlide, CarouselConfig,
+  BannerConfig, TextConfig, FeaturedConfig, CollectionGridConfig, CollectionGridItem,
 } from '@/types/homepage';
 import { CategoryDoc, Product } from '@/types';
 
@@ -69,24 +69,47 @@ const BLOCK_META: Record<BlockType, { label: string; color: string; icon: React.
       </svg>
     ),
   },
+  collection_grid: {
+    label: 'Grilla de colecciones',
+    color: 'bg-teal-100 text-teal-700',
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+      </svg>
+    ),
+  },
 };
 
 const BLOCK_DESCRIPTIONS: Record<BlockType, string> = {
-  hero: 'Imagen principal de la portada',
+  hero: 'Carrusel principal de la portada',
   category_carousel: 'Muestra productos de una categoría',
   image_banner: 'Franja editorial entre secciones',
   text_block: 'Sección de texto con fondo negro o blanco',
   featured_products: 'Selección manual de productos',
+  collection_grid: 'Grilla de tarjetas hacia colecciones',
 };
 
 function getDefaultConfig(type: BlockType): HomepageSection['config'] {
   switch (type) {
-    case 'hero': return {};
+    case 'hero': return { slides: [{}] };
     case 'category_carousel': return { categoryName: '', maxProducts: 4 };
     case 'image_banner': return { text: '', link: '' };
     case 'text_block': return { heading: '', body: '', bg: 'black' };
     case 'featured_products': return { productIds: [], title: '' };
+    case 'collection_grid': return { items: [{ title: '' }] };
   }
+}
+
+function getSlides(cfg: HeroConfig): HeroSlide[] {
+  if (cfg.slides && cfg.slides.length > 0) return cfg.slides;
+  return [{
+    image: cfg.image,
+    eyebrow: cfg.eyebrow,
+    headingLine1: cfg.headingLine1,
+    headingLine2: cfg.headingLine2,
+    body: cfg.body,
+    cta: cfg.cta,
+  }];
 }
 
 function inputCls(full = true) {
@@ -160,6 +183,69 @@ export default function HomepageBuilder({ initial, categories, products }: Props
     }
   }
 
+  async function uploadToUrl(key: string, file: File): Promise<string | null> {
+    setUploading(key);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || 'Error subiendo imagen');
+      return data.url as string;
+    } catch (err) {
+      setApiError(err instanceof Error ? err.message : 'Error subiendo imagen');
+      return null;
+    } finally {
+      setUploading(null);
+    }
+  }
+
+  // ── slides del hero ─────────────────────────────────────────────────────────
+
+  function updateSlide(s: HomepageSection, idx: number, patch: Partial<HeroSlide>) {
+    const cfg = s.config as HeroConfig;
+    const slides = getSlides(cfg).map((sl, i) => i === idx ? { ...sl, ...patch } : sl);
+    updateConfig(s.id, { slides });
+  }
+
+  function addSlide(s: HomepageSection) {
+    const cfg = s.config as HeroConfig;
+    updateConfig(s.id, { slides: [...getSlides(cfg), {}] });
+  }
+
+  function removeSlide(s: HomepageSection, idx: number) {
+    const cfg = s.config as HeroConfig;
+    updateConfig(s.id, { slides: getSlides(cfg).filter((_, i) => i !== idx) });
+  }
+
+  async function uploadSlideImage(s: HomepageSection, idx: number, file: File) {
+    const url = await uploadToUrl(`${s.id}__slide${idx}`, file);
+    if (url) updateSlide(s, idx, { image: url });
+  }
+
+  // ── items de la grilla de colecciones ───────────────────────────────────────
+
+  function updateGridItem(s: HomepageSection, idx: number, patch: Partial<CollectionGridItem>) {
+    const cfg = s.config as CollectionGridConfig;
+    const items = (cfg.items ?? []).map((it, i) => i === idx ? { ...it, ...patch } : it);
+    updateConfig(s.id, { items });
+  }
+
+  function addGridItem(s: HomepageSection) {
+    const cfg = s.config as CollectionGridConfig;
+    updateConfig(s.id, { items: [...(cfg.items ?? []), { title: '' }] });
+  }
+
+  function removeGridItem(s: HomepageSection, idx: number) {
+    const cfg = s.config as CollectionGridConfig;
+    updateConfig(s.id, { items: (cfg.items ?? []).filter((_, i) => i !== idx) });
+  }
+
+  async function uploadGridItemImage(s: HomepageSection, idx: number, file: File) {
+    const url = await uploadToUrl(`${s.id}__item${idx}`, file);
+    if (url) updateGridItem(s, idx, { image: url });
+  }
+
   async function handleSave() {
     setSaving(true);
     setApiError('');
@@ -200,39 +286,185 @@ export default function HomepageBuilder({ initial, categories, products }: Props
 
       case 'hero': {
         const cfg = s.config as HeroConfig;
+        const slides = getSlides(cfg);
         return (
-          <div className="flex flex-col gap-3">
-            <label className="text-[10px] uppercase tracking-widest text-gray-500 font-medium">Imagen del hero</label>
-            {cfg.image ? (
-              <div className="flex flex-col gap-2">
-                <div className="relative w-full max-w-sm aspect-video rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
-                  <Image src={cfg.image} alt="Hero" fill sizes="400px" className="object-cover" />
+          <div className="flex flex-col gap-5">
+            {slides.map((slide, idx) => {
+              const key = `${s.id}__slide${idx}`;
+              return (
+                <div key={idx} className="flex flex-col gap-3 border border-gray-200 rounded-xl p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] uppercase tracking-widest text-gray-500 font-medium">
+                      Slide {idx + 1}
+                    </span>
+                    {slides.length > 1 && (
+                      <button type="button" onClick={() => removeSlide(s, idx)}
+                        className="text-[11px] text-red-500 hover:text-black transition-colors">
+                        Quitar slide
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Imagen */}
+                  {slide.image ? (
+                    <div className="flex flex-col gap-2">
+                      <div className="relative w-full max-w-sm aspect-video rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                        <Image src={slide.image} alt={`Slide ${idx + 1}`} fill sizes="400px" className="object-cover" />
+                      </div>
+                      <div className="flex gap-3">
+                        <button type="button" onClick={() => fileRefs.current[key]?.click()}
+                          className="text-xs border border-gray-200 hover:border-black px-3 py-1.5 rounded-lg transition-colors">
+                          {uploading === key ? 'Subiendo…' : 'Cambiar'}
+                        </button>
+                        <button type="button" onClick={() => updateSlide(s, idx, { image: '' })}
+                          className="text-xs text-red-500 hover:text-black transition-colors">Eliminar</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button type="button" onClick={() => fileRefs.current[key]?.click()}
+                      disabled={uploading === key}
+                      className="w-full max-w-sm aspect-video rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-gray-400 transition-colors disabled:opacity-50">
+                      {uploading === key ? <span className="text-xs">Subiendo…</span> : (
+                        <>
+                          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+                          </svg>
+                          <span className="text-xs">Subir imagen</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                  <input ref={el => { fileRefs.current[key] = el; }} type="file" accept="image/*" className="hidden"
+                    onChange={e => { const f = e.target.files?.[0]; if (f) uploadSlideImage(s, idx, f); e.target.value = ''; }} />
+
+                  {/* Textos */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-gray-400">Etiqueta superior (eyebrow)</span>
+                    <input type="text" placeholder="Nueva colección"
+                      value={slide.eyebrow ?? ''}
+                      onChange={e => updateSlide(s, idx, { eyebrow: e.target.value })}
+                      className={inputCls()} />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] text-gray-400">Título línea 1</span>
+                      <input type="text" placeholder="Diseñado para moverte."
+                        value={slide.headingLine1 ?? ''}
+                        onChange={e => updateSlide(s, idx, { headingLine1: e.target.value })}
+                        className={inputCls()} />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] text-gray-400">Título línea 2</span>
+                      <input type="text" placeholder="Hecho para acompañarte."
+                        value={slide.headingLine2 ?? ''}
+                        onChange={e => updateSlide(s, idx, { headingLine2: e.target.value })}
+                        className={inputCls()} />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-gray-400">Descripción</span>
+                    <textarea rows={2} placeholder="Activewear premium que combina…"
+                      value={slide.body ?? ''}
+                      onChange={e => updateSlide(s, idx, { body: e.target.value })}
+                      className={inputCls() + ' resize-none'} />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-gray-400">Botón CTA</span>
+                    <input type="text" placeholder="Descubrir colección"
+                      value={slide.cta ?? ''}
+                      onChange={e => updateSlide(s, idx, { cta: e.target.value })}
+                      className={inputCls()} />
+                  </div>
                 </div>
-                <div className="flex gap-3">
-                  <button type="button" onClick={() => fileRefs.current[s.id]?.click()}
-                    className="text-xs border border-gray-200 hover:border-black px-3 py-1.5 rounded-lg transition-colors">
-                    {uploading === s.id ? 'Subiendo…' : 'Cambiar'}
-                  </button>
-                  <button type="button" onClick={() => updateConfig(s.id, { image: '' })}
-                    className="text-xs text-red-500 hover:text-black transition-colors">Eliminar</button>
+              );
+            })}
+
+            <button type="button" onClick={() => addSlide(s)}
+              className="border-2 border-dashed border-gray-200 hover:border-black text-gray-400 hover:text-black rounded-xl py-2.5 text-xs font-medium transition-colors">
+              + Agregar slide
+            </button>
+          </div>
+        );
+      }
+
+      case 'collection_grid': {
+        const cfg = s.config as CollectionGridConfig;
+        const items = cfg.items ?? [];
+        return (
+          <div className="flex flex-col gap-5">
+            {items.map((item, idx) => {
+              const key = `${s.id}__item${idx}`;
+              return (
+                <div key={idx} className="flex flex-col gap-3 border border-gray-200 rounded-xl p-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] uppercase tracking-widest text-gray-500 font-medium">
+                      Tarjeta {idx + 1}
+                    </span>
+                    {items.length > 1 && (
+                      <button type="button" onClick={() => removeGridItem(s, idx)}
+                        className="text-[11px] text-red-500 hover:text-black transition-colors">
+                        Quitar
+                      </button>
+                    )}
+                  </div>
+
+                  {item.image ? (
+                    <div className="flex flex-col gap-2">
+                      <div className="relative w-full max-w-sm aspect-[3/4] rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                        <Image src={item.image} alt={item.title || `Tarjeta ${idx + 1}`} fill sizes="300px" className="object-cover" />
+                      </div>
+                      <div className="flex gap-3">
+                        <button type="button" onClick={() => fileRefs.current[key]?.click()}
+                          className="text-xs border border-gray-200 hover:border-black px-3 py-1.5 rounded-lg transition-colors">
+                          {uploading === key ? 'Subiendo…' : 'Cambiar'}
+                        </button>
+                        <button type="button" onClick={() => updateGridItem(s, idx, { image: '' })}
+                          className="text-xs text-red-500 hover:text-black transition-colors">Eliminar</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button type="button" onClick={() => fileRefs.current[key]?.click()}
+                      disabled={uploading === key}
+                      className="w-full max-w-[180px] aspect-[3/4] rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-gray-400 transition-colors disabled:opacity-50">
+                      {uploading === key ? <span className="text-xs">Subiendo…</span> : (
+                        <>
+                          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+                          </svg>
+                          <span className="text-xs">Subir imagen</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                  <input ref={el => { fileRefs.current[key] = el; }} type="file" accept="image/*" className="hidden"
+                    onChange={e => { const f = e.target.files?.[0]; if (f) uploadGridItemImage(s, idx, f); e.target.value = ''; }} />
+
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-gray-400">Título</span>
+                    <input type="text" placeholder="Ej: Colección Movement"
+                      value={item.title ?? ''}
+                      onChange={e => updateGridItem(s, idx, { title: e.target.value })}
+                      className={inputCls()} />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-gray-400">Link <span className="normal-case font-normal text-gray-400">(opcional, por defecto /coleccion)</span></span>
+                    <input type="text" placeholder="/coleccion?categoria=Sets"
+                      value={item.link ?? ''}
+                      onChange={e => updateGridItem(s, idx, { link: e.target.value })}
+                      className={inputCls()} />
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <button type="button" onClick={() => fileRefs.current[s.id]?.click()}
-                disabled={uploading === s.id}
-                className="w-full max-w-sm aspect-video rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-gray-400 transition-colors disabled:opacity-50">
-                {uploading === s.id ? <span className="text-xs">Subiendo…</span> : (
-                  <>
-                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
-                    </svg>
-                    <span className="text-xs">Subir imagen</span>
-                  </>
-                )}
-              </button>
-            )}
-            <input ref={el => { fileRefs.current[s.id] = el; }} type="file" accept="image/*" className="hidden"
-              onChange={e => { const f = e.target.files?.[0]; if (f) uploadImage(s.id, f); e.target.value = ''; }} />
+              );
+            })}
+
+            <button type="button" onClick={() => addGridItem(s)}
+              className="border-2 border-dashed border-gray-200 hover:border-black text-gray-400 hover:text-black rounded-xl py-2.5 text-xs font-medium transition-colors">
+              + Agregar tarjeta
+            </button>
           </div>
         );
       }

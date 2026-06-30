@@ -11,10 +11,29 @@ export default function CategoriasList({ initial }: { initial: CategoryDoc[] }) 
   const [items, setItems] = useState(initial);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const [togglingId, setTogglingId] = useState<string | null>(null);
   const dragIndex = useRef<number | null>(null);
   const dragOverIndex = useRef<number | null>(null);
   const [dragging, setDragging] = useState<number | null>(null);
   const [dragOver, setDragOver] = useState<number | null>(null);
+
+  async function handleToggleActive(cat: CategoryDoc) {
+    setTogglingId(cat.id);
+    const newActive = !(cat.active !== false);
+    try {
+      const res = await fetch(`/api/categorias/${cat.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ active: newActive }),
+      });
+      if (!res.ok) throw new Error();
+      setItems(prev => prev.map(c => c.id === cat.id ? { ...c, active: newActive } : c));
+    } catch {
+      setError('No se pudo cambiar el estado');
+    } finally {
+      setTogglingId(null);
+    }
+  }
 
   function reorder(from: number, to: number) {
     const next = [...items];
@@ -101,6 +120,19 @@ export default function CategoriasList({ initial }: { initial: CategoryDoc[] }) 
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            {/* Active toggle */}
+            <button
+              onClick={() => handleToggleActive(cat)}
+              disabled={togglingId === cat.id}
+              title={cat.active !== false ? 'Desactivar categoría' : 'Activar categoría'}
+              className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors disabled:opacity-50 focus:outline-none ${
+                cat.active !== false ? 'bg-black' : 'bg-gray-200'
+              }`}
+            >
+              <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${
+                cat.active !== false ? 'translate-x-4' : 'translate-x-0.5'
+              }`} />
+            </button>
             <Link
               href={`/admin/categorias/${cat.id}`}
               className="text-xs border border-gray-200 hover:border-black text-gray-600 px-3 py-1.5 rounded-full transition-colors"
