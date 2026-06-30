@@ -104,10 +104,22 @@ export default function ProductGallery({
         )}
 
         {images.length > 1 && (
-          <div className="absolute bottom-4 right-4 bg-black/50 text-white text-[10px] font-medium px-2.5 py-1 rounded-full">
-            {current + 1} / {images.length}
+          <div className="absolute bottom-4 left-4 bg-black/50 text-white text-[10px] font-medium px-2.5 py-1 rounded-full">
+            {current + 1}/{images.length}
           </div>
         )}
+
+        {/* Zoom icon */}
+        <button
+          type="button"
+          aria-label="Ampliar imagen"
+          className="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-white/85 hover:bg-white shadow flex items-center justify-center transition-colors"
+          onClick={() => setZoom(zoom ? null : { x: 50, y: 50 })}
+        >
+          <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+          </svg>
+        </button>
 
         {images.length > 1 && (
           <>
@@ -129,23 +141,23 @@ export default function ProductGallery({
         )}
       </div>
 
-      {/* Miniaturas */}
+      {/* Miniaturas — scroll horizontal */}
       {images.length > 1 && (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="flex gap-2 overflow-x-auto scrollbar-none pb-0.5">
           {images.map((img, i) => (
             <button
               key={img}
               onClick={() => setCurrent(i)}
               aria-label={`Ver imagen ${i + 1}`}
-              className={`relative aspect-square rounded-lg overflow-hidden bg-gray-100 transition-all duration-150 ${
-                i === current ? 'ring-2 ring-black ring-offset-1' : 'opacity-60 hover:opacity-100'
+              className={`relative flex-shrink-0 w-[72px] aspect-[3/4] rounded-lg overflow-hidden bg-gray-100 transition-all duration-150 ${
+                i === current ? 'ring-2 ring-black ring-offset-1' : 'opacity-55 hover:opacity-90'
               }`}
             >
               <Image
                 src={img}
                 alt={`${name} — miniatura ${i + 1}`}
                 fill
-                sizes="(max-width: 1024px) 25vw, 12vw"
+                sizes="80px"
                 className="object-cover"
               />
             </button>

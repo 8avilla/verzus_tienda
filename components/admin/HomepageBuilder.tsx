@@ -6,6 +6,7 @@ import Swal from 'sweetalert2';
 import {
   HomepageSection, BlockType, HeroConfig, HeroSlide, CarouselConfig,
   BannerConfig, TextConfig, FeaturedConfig, CollectionGridConfig, CollectionGridItem,
+  LifestyleBannerConfig, InstagramGridConfig,
 } from '@/types/homepage';
 import { CategoryDoc, Product } from '@/types';
 
@@ -69,6 +70,24 @@ const BLOCK_META: Record<BlockType, { label: string; color: string; icon: React.
       </svg>
     ),
   },
+  lifestyle_banner: {
+    label: 'Banner lifestyle',
+    color: 'bg-pink-100 text-pink-700',
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
+      </svg>
+    ),
+  },
+  instagram_grid: {
+    label: 'Instagram',
+    color: 'bg-orange-100 text-orange-700',
+    icon: (
+      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069z"/>
+      </svg>
+    ),
+  },
   collection_grid: {
     label: 'Grilla de colecciones',
     color: 'bg-teal-100 text-teal-700',
@@ -87,6 +106,8 @@ const BLOCK_DESCRIPTIONS: Record<BlockType, string> = {
   text_block: 'Sección de texto con fondo negro o blanco',
   featured_products: 'Selección manual de productos',
   collection_grid: 'Grilla de tarjetas hacia colecciones',
+  lifestyle_banner: 'Banner editorial con texto e imágenes',
+  instagram_grid: 'Grid de fotos del Instagram',
 };
 
 function getDefaultConfig(type: BlockType): HomepageSection['config'] {
@@ -97,6 +118,8 @@ function getDefaultConfig(type: BlockType): HomepageSection['config'] {
     case 'text_block': return { heading: '', body: '', bg: 'black' };
     case 'featured_products': return { productIds: [], title: '' };
     case 'collection_grid': return { items: [{ title: '' }] };
+    case 'lifestyle_banner': return { label: 'Verzus Lifestyle', heading: '', body: '', cta: 'Descubrir más', link: '/coleccion', images: [], bg: 'light' };
+    case 'instagram_grid': return { handle: '@verzus.wear', images: [] };
   }
 }
 
@@ -451,6 +474,14 @@ export default function HomepageBuilder({ initial, categories, products }: Props
                   </div>
 
                   <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-gray-400">Descripción corta <span className="normal-case font-normal text-gray-400">(opcional)</span></span>
+                    <input type="text" placeholder="Ej: Ropa diseñada para cada paso que das."
+                      value={(item as CollectionGridItem).subtitle ?? ''}
+                      onChange={e => updateGridItem(s, idx, { subtitle: e.target.value })}
+                      className={inputCls()} />
+                  </div>
+
+                  <div className="flex flex-col gap-1">
                     <span className="text-[10px] text-gray-400">Link <span className="normal-case font-normal text-gray-400">(opcional, por defecto /coleccion)</span></span>
                     <input type="text" placeholder="/coleccion?categoria=Sets"
                       value={item.link ?? ''}
@@ -627,6 +658,125 @@ export default function HomepageBuilder({ initial, categories, products }: Props
                   );
                 })}
               </div>
+            </div>
+          </div>
+        );
+      }
+      case 'lifestyle_banner': {
+        const cfg = s.config as LifestyleBannerConfig;
+        return (
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] text-gray-400">Etiqueta (label)</span>
+                <input value={cfg.label ?? ''} onChange={e => updateConfig(s.id, { label: e.target.value })}
+                  placeholder="VERZUS LIFESTYLE" className={inputCls()} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] text-gray-400">Fondo</span>
+                <select value={cfg.bg ?? 'light'} onChange={e => updateConfig(s.id, { bg: e.target.value })}
+                  className={inputCls().replace('px-3', 'px-2')}>
+                  <option value="light">Claro</option>
+                  <option value="dark">Oscuro</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] text-gray-400">Título</span>
+              <input value={cfg.heading ?? ''} onChange={e => updateConfig(s.id, { heading: e.target.value })}
+                placeholder="Para tu entrenamiento. Para tu día." className={inputCls()} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] text-gray-400">Descripción</span>
+              <textarea rows={2} value={cfg.body ?? ''} onChange={e => updateConfig(s.id, { body: e.target.value })}
+                placeholder="Versatilidad, estilo y confort en cada movimiento."
+                className={inputCls() + ' resize-none'} />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] text-gray-400">Botón CTA</span>
+                <input value={cfg.cta ?? ''} onChange={e => updateConfig(s.id, { cta: e.target.value })}
+                  placeholder="Descubrir más" className={inputCls()} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] text-gray-400">Link del botón</span>
+                <input value={cfg.link ?? ''} onChange={e => updateConfig(s.id, { link: e.target.value })}
+                  placeholder="/coleccion" className={inputCls()} />
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] text-gray-400">Imágenes (hasta 2)</span>
+              {(cfg.images ?? []).map((img, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
+                    <Image src={img} alt={`img ${idx+1}`} fill sizes="64px" className="object-cover" />
+                  </div>
+                  <input value={img} onChange={e => {
+                    const imgs = [...(cfg.images ?? [])]; imgs[idx] = e.target.value;
+                    updateConfig(s.id, { images: imgs });
+                  }} className={inputCls()} placeholder="URL de imagen" />
+                  <button type="button" onClick={() => {
+                    updateConfig(s.id, { images: (cfg.images ?? []).filter((_, i) => i !== idx) });
+                  }} className="text-red-400 hover:text-red-600 text-xs shrink-0">Quitar</button>
+                </div>
+              ))}
+              {(cfg.images ?? []).length < 2 && (
+                <button type="button" onClick={() => {
+                  const key = `${s.id}__lsimg${(cfg.images ?? []).length}`;
+                  fileRefs.current[key]?.click();
+                }}
+                  disabled={uploading !== null}
+                  className="border-2 border-dashed border-gray-200 hover:border-gray-400 text-gray-400 text-xs rounded-lg py-2 transition-colors">
+                  {uploading?.startsWith(s.id + '__lsimg') ? 'Subiendo…' : '+ Agregar imagen'}
+                </button>
+              )}
+              {[0, 1].map(idx => (
+                <input key={idx}
+                  ref={el => { fileRefs.current[`${s.id}__lsimg${idx}`] = el; }}
+                  type="file" accept="image/*" className="hidden"
+                  onChange={async e => {
+                    const f = e.target.files?.[0]; if (!f) return;
+                    const url = await uploadToUrl(`${s.id}__lsimg${idx}`, f);
+                    if (url) { const imgs = [...(cfg.images ?? [])]; imgs[idx] = url; updateConfig(s.id, { images: imgs }); }
+                    e.target.value = '';
+                  }} />
+              ))}
+            </div>
+          </div>
+        );
+      }
+
+      case 'instagram_grid': {
+        const cfg = s.config as InstagramGridConfig;
+        return (
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] text-gray-400">Handle de Instagram</span>
+              <input value={cfg.handle ?? ''} onChange={e => updateConfig(s.id, { handle: e.target.value })}
+                placeholder="@verzus.wear" className={inputCls()} />
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] text-gray-400">Fotos (hasta 6 URLs)</span>
+              {(cfg.images ?? []).map((img, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
+                    <Image src={img} alt={`ig ${idx+1}`} fill sizes="48px" className="object-cover" />
+                  </div>
+                  <input value={img} onChange={e => {
+                    const imgs = [...(cfg.images ?? [])]; imgs[idx] = e.target.value;
+                    updateConfig(s.id, { images: imgs });
+                  }} className={inputCls()} placeholder="URL de foto" />
+                  <button type="button" onClick={() => {
+                    updateConfig(s.id, { images: (cfg.images ?? []).filter((_, i) => i !== idx) });
+                  }} className="text-red-400 hover:text-red-600 text-xs shrink-0">×</button>
+                </div>
+              ))}
+              {(cfg.images ?? []).length < 6 && (
+                <button type="button" onClick={() => updateConfig(s.id, { images: [...(cfg.images ?? []), ''] })}
+                  className="border-2 border-dashed border-gray-200 hover:border-gray-400 text-gray-400 text-xs rounded-lg py-2 transition-colors">
+                  + Agregar URL
+                </button>
+              )}
             </div>
           </div>
         );

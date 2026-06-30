@@ -2,9 +2,11 @@ import Link from 'next/link';
 import Hero from '@/components/Hero';
 import TrustBadges from '@/components/TrustBadges';
 import CollectionGrid from '@/components/CollectionGrid';
+import LifestyleBanner from '@/components/LifestyleBanner';
+import InstagramSection from '@/components/InstagramSection';
 import ProductCarousel from '@/components/ProductCarousel';
 import CategoryBanner from '@/components/CategoryBanner';
-import { HomepageSection, HeroConfig, CarouselConfig, BannerConfig, TextConfig, FeaturedConfig, CollectionGridConfig } from '@/types/homepage';
+import { HomepageSection, HeroConfig, CarouselConfig, BannerConfig, TextConfig, FeaturedConfig, CollectionGridConfig, LifestyleBannerConfig, InstagramGridConfig } from '@/types/homepage';
 import { Product, CategoryDoc } from '@/types';
 
 interface Props {
@@ -114,6 +116,16 @@ export default function HomepageRenderer({ sections, allProducts, categoryMeta }
                 index={i}
               />
             );
+          }
+
+          case 'lifestyle_banner': {
+            const cfg = section.config as LifestyleBannerConfig;
+            return <LifestyleBanner key={section.id} cfg={cfg} />;
+          }
+
+          case 'instagram_grid': {
+            const cfg = section.config as InstagramGridConfig;
+            return <InstagramSection key={section.id} cfg={cfg} />;
           }
 
           default:

@@ -33,11 +33,14 @@ export default function CollectionGrid({ items }: Props) {
               <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
               <div className="absolute bottom-0 left-0 p-4 sm:p-5 text-white">
                 <h3
-                  className="text-lg sm:text-xl leading-tight mb-1"
+                  className="text-lg sm:text-xl leading-tight font-semibold uppercase tracking-tight"
                   style={{ fontFamily: 'var(--font-dm-serif)' }}
                 >
                   {item.title}
                 </h3>
+                {item.subtitle && (
+                  <p className="text-[11px] text-white/80 mt-1 mb-2 leading-snug max-w-[160px]">{item.subtitle}</p>
+                )}
                 <span className="text-[10px] uppercase tracking-widest font-semibold inline-flex items-center gap-1">
                   Ver más
                   <svg className="w-3 h-3 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

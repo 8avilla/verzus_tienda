@@ -30,6 +30,7 @@ export interface Product {
   stock?: number | null;
   stockTracked?: boolean;
   lastUnits?: boolean;
+  features?: string[];
 }
 
 export interface CartItem {

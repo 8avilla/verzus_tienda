@@ -4,7 +4,9 @@ export type BlockType =
   | 'image_banner'
   | 'text_block'
   | 'featured_products'
-  | 'collection_grid';
+  | 'collection_grid'
+  | 'lifestyle_banner'
+  | 'instagram_grid';
 
 export interface HeroSlide {
   image?: string;
@@ -48,6 +50,7 @@ export interface FeaturedConfig {
 export interface CollectionGridItem {
   image?: string;
   title: string;
+  subtitle?: string;
   link?: string;
 }
 
@@ -55,7 +58,30 @@ export interface CollectionGridConfig {
   items: CollectionGridItem[];
 }
 
-export type SectionConfig = HeroConfig | CarouselConfig | BannerConfig | TextConfig | FeaturedConfig | CollectionGridConfig;
+export interface LifestyleBannerConfig {
+  label?: string;
+  heading?: string;
+  body?: string;
+  cta?: string;
+  link?: string;
+  images?: string[];
+  bg?: 'light' | 'dark';
+}
+
+export interface InstagramGridConfig {
+  handle?: string;
+  images?: string[];
+}
+
+export type SectionConfig =
+  | HeroConfig
+  | CarouselConfig
+  | BannerConfig
+  | TextConfig
+  | FeaturedConfig
+  | CollectionGridConfig
+  | LifestyleBannerConfig
+  | InstagramGridConfig;
 
 export interface HomepageSection {
   id: string;

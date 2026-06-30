@@ -53,11 +53,26 @@ const getProduct = cache(async (id: string): Promise<Product | null> => {
       stock: (doc.stock as number | null) ?? null,
       stockTracked: doc.stockTracked === true,
       lastUnits: doc.lastUnits === true,
+      features: (doc.features as string[] | undefined) ?? [],
     };
   } catch {
     return null;
   }
 });
+
+async function getReviewStats(productId: string): Promise<{ count: number; avg: number }> {
+  try {
+    const db = await getDb();
+    const reviews = await db.collection('reviews')
+      .find({ productId, approved: true }, { projection: { rating: 1 } })
+      .toArray();
+    if (reviews.length === 0) return { count: 0, avg: 0 };
+    const avg = reviews.reduce((s, r) => s + (r.rating as number), 0) / reviews.length;
+    return { count: reviews.length, avg };
+  } catch {
+    return { count: 0, avg: 0 };
+  }
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
@@ -90,7 +105,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ProductoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const product = await getProduct(id);
+  const [product, reviewStats] = await Promise.all([getProduct(id), getReviewStats(id)]);
   if (!product || !product.active) notFound();
 
   const productJsonLd = {
@@ -131,15 +146,15 @@ export default async function ProductoPage({ params }: { params: Promise<{ id: s
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
 
           {/* Breadcrumb */}
-          <nav className="flex items-center gap-2 text-xs text-gray-400 mb-8" aria-label="Breadcrumb">
+          <nav className="flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-gray-400 mb-8" aria-label="Breadcrumb">
             <Link href="/" className="hover:text-black transition-colors">Inicio</Link>
             <span>/</span>
-            <Link href="/#catalogo" className="hover:text-black transition-colors capitalize">{product.category}</Link>
+            <Link href={`/coleccion?categoria=${encodeURIComponent(product.category)}`} className="hover:text-black transition-colors">{product.category}</Link>
             <span>/</span>
             <span className="text-black truncate max-w-[200px]">{product.name}</span>
           </nav>
 
-          <ProductColorView product={product} />
+          <ProductColorView product={product} reviewStats={reviewStats} />
         </div>
       </main>
 

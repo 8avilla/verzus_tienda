@@ -35,6 +35,7 @@ async function getProduct(id: string): Promise<AdminProduct | null> {
       stockTracked: doc.stockTracked === true,
       lastUnits: doc.lastUnits === true,
       purchaseCost: (doc.purchaseCost as number | undefined) ?? undefined,
+      features: (doc.features as string[] | undefined) ?? [],
     };
   } catch {
     return null;
