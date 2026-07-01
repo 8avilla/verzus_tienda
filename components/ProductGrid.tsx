@@ -25,21 +25,17 @@ export default function ProductGrid({ products, categories, initialCategory = 't
   return (
     <section className="flex flex-col gap-6 lg:gap-10">
 
-      {/* Heading con número oversized — solo desktop */}
-      <div className="relative hidden lg:block">
-        <span
-          className="absolute -top-10 left-0 text-[10rem] font-black text-gray-100/80 leading-none select-none pointer-events-none"
+      {/* Heading editorial — sin número decorativo */}
+      <div className="flex flex-col gap-2 pt-2">
+        <p className="text-[10px] uppercase tracking-[0.22em] text-gray-400 font-semibold">
+          ✦ Catálogo
+        </p>
+        <h2
+          className="text-4xl sm:text-5xl text-black font-normal italic"
           style={{ fontFamily: 'var(--font-dm-serif)' }}
-          aria-hidden="true"
         >
-          01
-        </span>
-        <div className="relative pt-4">
-          <p className="flex items-center gap-2 text-[10px] uppercase tracking-[0.22em] text-black font-semibold mb-2">
-            <span>✦</span> Catálogo
-          </p>
-          <h2 className="text-4xl sm:text-5xl text-black">Colección completa</h2>
-        </div>
+          Colección completa
+        </h2>
       </div>
 
       {/* Filtros categoría — tabs con underline */}
@@ -64,7 +60,7 @@ export default function ProductGrid({ products, categories, initialCategory = 't
       </p>
 
       {filtered.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-6 lg:gap-x-5 lg:gap-y-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-8 lg:gap-x-8 lg:gap-y-14">
           {filtered.map((product, i) => (
             <ProductCard
               key={product.id}

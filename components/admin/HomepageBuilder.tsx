@@ -154,6 +154,7 @@ export default function HomepageBuilder({ initial, categories, products }: Props
   const [sections, setSections] = useState<HomepageSection[]>(initial);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [showPicker, setShowPicker] = useState(false);
+  const [slideTabs, setSlideTabs] = useState<Record<string, 'content' | 'desktop' | 'mobile'>>({});
   const [saving, setSaving] = useState(false);
   const [apiError, setApiError] = useState('');
   const [uploading, setUploading] = useState<string | null>(null);
@@ -321,97 +322,248 @@ export default function HomepageBuilder({ initial, categories, products }: Props
       case 'hero': {
         const cfg = s.config as HeroConfig;
         const slides = getSlides(cfg);
+
+        function SlideImagePicker({ keyId, imgSrc, onUpload, onClear, label }: {
+          keyId: string; imgSrc?: string; onUpload: (f: File) => void; onClear: () => void; label: string;
+        }) {
+          return imgSrc ? (
+            <div className="flex flex-col gap-2">
+              <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
+                <Image src={imgSrc} alt={label} fill sizes="400px" className="object-cover" />
+              </div>
+              <div className="flex gap-3">
+                <button type="button" onClick={() => fileRefs.current[keyId]?.click()}
+                  className="text-xs border border-gray-200 hover:border-black px-3 py-1.5 rounded-lg transition-colors">
+                  {uploading === keyId ? 'Subiendo…' : 'Cambiar'}
+                </button>
+                <button type="button" onClick={onClear}
+                  className="text-xs text-red-500 hover:text-black transition-colors">Quitar</button>
+              </div>
+              <input ref={el => { fileRefs.current[keyId] = el; }} type="file" accept="image/*" className="hidden"
+                onChange={e => { const f = e.target.files?.[0]; if (f) onUpload(f); e.target.value = ''; }} />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-1">
+              <button type="button" onClick={() => fileRefs.current[keyId]?.click()}
+                disabled={uploading === keyId}
+                className="w-full aspect-video rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-gray-400 transition-colors disabled:opacity-50">
+                {uploading === keyId ? <span className="text-xs">Subiendo…</span> : (
+                  <>
+                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span className="text-xs">{label}</span>
+                  </>
+                )}
+              </button>
+              <input ref={el => { fileRefs.current[keyId] = el; }} type="file" accept="image/*" className="hidden"
+                onChange={e => { const f = e.target.files?.[0]; if (f) onUpload(f); e.target.value = ''; }} />
+            </div>
+          );
+        }
+
+        function PositionPicker({ align, vertical, onAlignChange, onVerticalChange }: {
+          align: string; vertical: string;
+          onAlignChange: (v: 'left' | 'center' | 'right') => void;
+          onVerticalChange: (v: 'top' | 'middle' | 'bottom') => void;
+        }) {
+          const ALIGNS = ['left', 'center', 'right'] as const;
+          const VERTICALS = ['top', 'middle', 'bottom'] as const;
+          return (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] text-gray-400">Posición del texto</span>
+              <div className="inline-grid grid-cols-3 gap-1.5 w-fit">
+                {VERTICALS.map(v => ALIGNS.map(a => {
+                  const isActive = align === a && vertical === v;
+                  return (
+                    <button
+                      key={`${v}-${a}`}
+                      type="button"
+                      title={`${v} ${a}`}
+                      onClick={() => { onAlignChange(a); onVerticalChange(v); }}
+                      className={`w-9 h-7 rounded-md border-2 flex items-center justify-center transition-all ${
+                        isActive ? 'border-black bg-black' : 'border-gray-200 hover:border-gray-400'
+                      }`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : 'bg-gray-400'}`} />
+                    </button>
+                  );
+                }))}
+              </div>
+              <p className="text-[10px] text-gray-400 capitalize">{vertical} · {align}</p>
+            </div>
+          );
+        }
+
+        function SizePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+          const SIZES = [
+            { key: 'xs', label: 'XS' }, { key: 'sm', label: 'S' }, { key: 'md', label: 'M' },
+            { key: 'lg', label: 'L' }, { key: 'xl', label: 'XL' }, { key: '2xl', label: 'XXL' },
+          ];
+          return (
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[10px] text-gray-400">Tamaño del título</span>
+              <div className="flex gap-1.5">
+                {SIZES.map(({ key, label }) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => onChange(key)}
+                    className={`px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all ${
+                      value === key ? 'bg-black text-white border-black' : 'border-gray-200 text-gray-500 hover:border-gray-400'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
         return (
           <div className="flex flex-col gap-5">
             {slides.map((slide, idx) => {
-              const key = `${s.id}__slide${idx}`;
+              const tabKey = `${s.id}__${idx}`;
+              const activeTab = slideTabs[tabKey] ?? 'content';
+              const imgKey = `${s.id}__slide${idx}`;
+              const mobImgKey = `${s.id}__slidemob${idx}`;
+
               return (
-                <div key={idx} className="flex flex-col gap-3 border border-gray-200 rounded-xl p-3">
-                  <div className="flex items-center justify-between">
+                <div key={idx} className="flex flex-col gap-0 border border-gray-200 rounded-xl overflow-hidden">
+                  {/* Slide header */}
+                  <div className="flex items-center justify-between px-3 py-2 bg-gray-50 border-b border-gray-200">
                     <span className="text-[10px] uppercase tracking-widest text-gray-500 font-medium">
                       Slide {idx + 1}
                     </span>
                     {slides.length > 1 && (
                       <button type="button" onClick={() => removeSlide(s, idx)}
                         className="text-[11px] text-red-500 hover:text-black transition-colors">
-                        Quitar slide
+                        Quitar
                       </button>
                     )}
                   </div>
 
-                  {/* Imagen */}
-                  {slide.image ? (
-                    <div className="flex flex-col gap-2">
-                      <div className="relative w-full max-w-sm aspect-video rounded-xl overflow-hidden bg-gray-100 border border-gray-200">
-                        <Image src={slide.image} alt={`Slide ${idx + 1}`} fill sizes="400px" className="object-cover" />
+                  {/* Tabs */}
+                  <div className="flex border-b border-gray-200">
+                    {(['content', 'desktop', 'mobile'] as const).map(tab => (
+                      <button
+                        key={tab}
+                        type="button"
+                        onClick={() => setSlideTabs(prev => ({ ...prev, [tabKey]: tab }))}
+                        className={`flex-1 py-2 text-[11px] font-medium uppercase tracking-wide transition-colors ${
+                          activeTab === tab
+                            ? 'bg-black text-white'
+                            : 'text-gray-500 hover:text-black hover:bg-gray-50'
+                        }`}
+                      >
+                        {tab === 'content' ? 'Contenido' : tab === 'desktop' ? '🖥 Desktop' : '📱 Móvil'}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Tab: Contenido */}
+                  {activeTab === 'content' && (
+                    <div className="flex flex-col gap-3 p-3">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] text-gray-400">Etiqueta superior</span>
+                        <input type="text" placeholder="Nueva colección"
+                          value={slide.eyebrow ?? ''}
+                          onChange={e => updateSlide(s, idx, { eyebrow: e.target.value })}
+                          className={inputCls()} />
                       </div>
-                      <div className="flex gap-3">
-                        <button type="button" onClick={() => fileRefs.current[key]?.click()}
-                          className="text-xs border border-gray-200 hover:border-black px-3 py-1.5 rounded-lg transition-colors">
-                          {uploading === key ? 'Subiendo…' : 'Cambiar'}
-                        </button>
-                        <button type="button" onClick={() => updateSlide(s, idx, { image: '' })}
-                          className="text-xs text-red-500 hover:text-black transition-colors">Eliminar</button>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[10px] text-gray-400">Título línea 1</span>
+                          <input type="text" placeholder="Diseñado para moverte."
+                            value={slide.headingLine1 ?? ''}
+                            onChange={e => updateSlide(s, idx, { headingLine1: e.target.value })}
+                            className={inputCls()} />
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-[10px] text-gray-400">Título línea 2</span>
+                          <input type="text" placeholder="Hecho para acompañarte."
+                            value={slide.headingLine2 ?? ''}
+                            onChange={e => updateSlide(s, idx, { headingLine2: e.target.value })}
+                            className={inputCls()} />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] text-gray-400">Descripción</span>
+                        <textarea rows={2} placeholder="Activewear premium que combina…"
+                          value={slide.body ?? ''}
+                          onChange={e => updateSlide(s, idx, { body: e.target.value })}
+                          className={`${inputCls()} resize-none`} />
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] text-gray-400">Texto del botón CTA</span>
+                        <input type="text" placeholder="Descubrir colección"
+                          value={slide.cta ?? ''}
+                          onChange={e => updateSlide(s, idx, { cta: e.target.value })}
+                          className={inputCls()} />
                       </div>
                     </div>
-                  ) : (
-                    <button type="button" onClick={() => fileRefs.current[key]?.click()}
-                      disabled={uploading === key}
-                      className="w-full max-w-sm aspect-video rounded-xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 text-gray-400 hover:border-gray-400 transition-colors disabled:opacity-50">
-                      {uploading === key ? <span className="text-xs">Subiendo…</span> : (
-                        <>
-                          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
-                          </svg>
-                          <span className="text-xs">Subir imagen</span>
-                        </>
-                      )}
-                    </button>
                   )}
-                  <input ref={el => { fileRefs.current[key] = el; }} type="file" accept="image/*" className="hidden"
-                    onChange={e => { const f = e.target.files?.[0]; if (f) uploadSlideImage(s, idx, f); e.target.value = ''; }} />
 
-                  {/* Textos */}
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] text-gray-400">Etiqueta superior (eyebrow)</span>
-                    <input type="text" placeholder="Nueva colección"
-                      value={slide.eyebrow ?? ''}
-                      onChange={e => updateSlide(s, idx, { eyebrow: e.target.value })}
-                      className={inputCls()} />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[10px] text-gray-400">Título línea 1</span>
-                      <input type="text" placeholder="Diseñado para moverte."
-                        value={slide.headingLine1 ?? ''}
-                        onChange={e => updateSlide(s, idx, { headingLine1: e.target.value })}
-                        className={inputCls()} />
+                  {/* Tab: Desktop */}
+                  {activeTab === 'desktop' && (
+                    <div className="flex flex-col gap-4 p-3">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">Imagen desktop</span>
+                        <SlideImagePicker
+                          keyId={imgKey}
+                          imgSrc={slide.image}
+                          label="Subir imagen desktop"
+                          onUpload={f => uploadSlideImage(s, idx, f)}
+                          onClear={() => updateSlide(s, idx, { image: '' })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <PositionPicker
+                          align={slide.textAlign ?? 'left'}
+                          vertical={slide.textVertical ?? 'middle'}
+                          onAlignChange={v => updateSlide(s, idx, { textAlign: v })}
+                          onVerticalChange={v => updateSlide(s, idx, { textVertical: v })}
+                        />
+                        <SizePicker
+                          value={slide.headingSize ?? 'lg'}
+                          onChange={v => updateSlide(s, idx, { headingSize: v as HeroSlide['headingSize'] })}
+                        />
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[10px] text-gray-400">Título línea 2</span>
-                      <input type="text" placeholder="Hecho para acompañarte."
-                        value={slide.headingLine2 ?? ''}
-                        onChange={e => updateSlide(s, idx, { headingLine2: e.target.value })}
-                        className={inputCls()} />
+                  )}
+
+                  {/* Tab: Móvil */}
+                  {activeTab === 'mobile' && (
+                    <div className="flex flex-col gap-4 p-3">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">Imagen móvil</span>
+                        <p className="text-[10px] text-gray-400">Opcional — si no se configura usa la misma imagen del desktop</p>
+                        <SlideImagePicker
+                          keyId={mobImgKey}
+                          imgSrc={slide.mobileImage}
+                          label="Subir imagen móvil"
+                          onUpload={async f => {
+                            const url = await uploadToUrl(mobImgKey, f);
+                            if (url) updateSlide(s, idx, { mobileImage: url });
+                          }}
+                          onClear={() => updateSlide(s, idx, { mobileImage: '' })}
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <PositionPicker
+                          align={slide.mobileTextAlign ?? 'left'}
+                          vertical={slide.mobileTextVertical ?? 'middle'}
+                          onAlignChange={v => updateSlide(s, idx, { mobileTextAlign: v })}
+                          onVerticalChange={v => updateSlide(s, idx, { mobileTextVertical: v })}
+                        />
+                        <SizePicker
+                          value={slide.mobileHeadingSize ?? 'md'}
+                          onChange={v => updateSlide(s, idx, { mobileHeadingSize: v as HeroSlide['mobileHeadingSize'] })}
+                        />
+                      </div>
                     </div>
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] text-gray-400">Descripción</span>
-                    <textarea rows={2} placeholder="Activewear premium que combina…"
-                      value={slide.body ?? ''}
-                      onChange={e => updateSlide(s, idx, { body: e.target.value })}
-                      className={inputCls() + ' resize-none'} />
-                  </div>
-
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[10px] text-gray-400">Botón CTA</span>
-                    <input type="text" placeholder="Descubrir colección"
-                      value={slide.cta ?? ''}
-                      onChange={e => updateSlide(s, idx, { cta: e.target.value })}
-                      className={inputCls()} />
-                  </div>
+                  )}
                 </div>
               );
             })}
@@ -788,7 +940,12 @@ export default function HomepageBuilder({ initial, categories, products }: Props
               {(cfg.images ?? []).map((img, idx) => (
                 <div key={idx} className="flex items-center gap-2">
                   <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100 border border-gray-200 shrink-0">
-                    <Image src={img} alt={`ig ${idx+1}`} fill sizes="48px" className="object-cover" />
+                    {img ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={img} alt={`ig ${idx+1}`} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-300 text-xs">URL</div>
+                    )}
                   </div>
                   <input value={img} onChange={e => {
                     const imgs = [...(cfg.images ?? [])]; imgs[idx] = e.target.value;

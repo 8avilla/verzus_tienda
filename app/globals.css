@@ -80,3 +80,31 @@ h2 {
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
+
+/* Custom dot cursor for product images */
+.cursor-dot {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Ccircle cx='10' cy='10' r='4' fill='%231a1a1a'/%3E%3C/svg%3E") 10 10, crosshair;
+}
+
+/* View transitions — progressive enhancement for modern browsers */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: 180ms ease vtFadeOut;
+}
+
+::view-transition-new(root) {
+  animation: 240ms ease vtFadeIn;
+}
+
+@keyframes vtFadeOut {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes vtFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

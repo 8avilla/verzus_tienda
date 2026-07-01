@@ -110,6 +110,7 @@ export default async function RootLayout({
       className={`${jost.variable} ${dmSerifDisplay.variable} h-full`}
     >
       <head>
+        <meta name="view-transition" content="same-origin" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}

@@ -21,27 +21,28 @@ export default function ProductCarousel({ title, subtitle, categoryName, product
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
         {/* Header */}
-        <div className="mb-6 lg:mb-8 flex items-end justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <h2 className="text-xl sm:text-2xl uppercase font-semibold tracking-tight" style={{ color: '#282828' }}>
+        <div className="mb-8 lg:mb-12 flex items-end justify-between gap-4">
+          <div className="flex flex-col gap-2">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-gray-400 font-semibold">✦ {subtitle || 'Colección'}</p>
+            <h2
+              className="text-3xl sm:text-4xl text-black font-normal leading-tight"
+              style={{ fontFamily: 'var(--font-dm-serif)' }}
+            >
               {title}
             </h2>
-            {subtitle && (
-              <p className="text-sm font-normal text-gray-500">{subtitle}</p>
-            )}
           </div>
           {categoryName && (
             <Link
               href={`/coleccion?categoria=${encodeURIComponent(categoryName)}`}
-              className="shrink-0 text-[11px] uppercase tracking-widest font-semibold text-gray-500 hover:text-black transition-colors whitespace-nowrap"
+              className="shrink-0 text-[10px] uppercase tracking-[0.18em] font-semibold text-gray-400 hover:text-black transition-colors whitespace-nowrap border-b border-gray-300 hover:border-black pb-px"
             >
-              Ver todas
+              Ver todas →
             </Link>
           )}
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-6 lg:gap-x-5 lg:gap-y-8">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-8 lg:gap-x-8 lg:gap-y-14">
           {shown.map((product, i) => (
             <ProductCard
               key={product.id}

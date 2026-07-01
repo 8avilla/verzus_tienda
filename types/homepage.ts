@@ -9,6 +9,10 @@ export type BlockType =
   | 'instagram_grid'
   | 'testimonials';
 
+export type HeroTextAlign = 'left' | 'center' | 'right';
+export type HeroTextVertical = 'top' | 'middle' | 'bottom';
+export type HeroHeadingSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+
 export interface HeroSlide {
   image?: string;
   eyebrow?: string;
@@ -18,6 +22,15 @@ export interface HeroSlide {
   cta?: string;
   mobileTitle?: string;
   year?: string;
+  // Desktop layout
+  textAlign?: HeroTextAlign;
+  textVertical?: HeroTextVertical;
+  headingSize?: HeroHeadingSize;
+  // Mobile overrides
+  mobileImage?: string;
+  mobileTextAlign?: HeroTextAlign;
+  mobileTextVertical?: HeroTextVertical;
+  mobileHeadingSize?: HeroHeadingSize;
 }
 
 export interface HeroConfig extends HeroSlide {

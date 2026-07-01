@@ -55,21 +55,24 @@ export default function ProductColorView({ product, reviewStats }: { product: Pr
         <p className="text-[10px] uppercase tracking-[0.22em] text-gray-400 font-semibold">{product.category}</p>
 
         {/* Nombre */}
-        <h1 className="text-2xl sm:text-3xl font-bold text-black leading-tight uppercase tracking-tight">
+        <h1
+          className="text-3xl sm:text-4xl text-black leading-tight font-normal"
+          style={{ fontFamily: 'var(--font-dm-serif)' }}
+        >
           {product.name}
         </h1>
 
         {/* Tagline */}
         {product.tagline && (
-          <p className="text-sm text-gray-500 leading-snug -mt-2" style={{ fontFamily: 'var(--font-dm-serif)', fontStyle: 'italic' }}>
+          <p className="text-sm text-gray-400 leading-snug -mt-2 italic" style={{ fontFamily: 'var(--font-dm-serif)' }}>
             {product.tagline}
           </p>
         )}
 
         {/* Precio */}
-        <p className="text-2xl font-bold text-black">
+        <p className="text-lg font-light text-gray-500">
           ${product.price.toLocaleString('es-CO')}
-          <span className="text-sm font-normal text-gray-400 ml-2">COP</span>
+          <span className="text-sm text-gray-400 ml-1.5">COP</span>
         </p>
 
         {/* Rating */}

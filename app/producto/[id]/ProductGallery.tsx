@@ -61,18 +61,47 @@ export default function ProductGallery({
     );
   }
 
+  const ThumbnailButton = ({ img, i }: { img: string; i: number }) => (
+    <button
+      key={img}
+      onClick={() => setCurrent(i)}
+      aria-label={`Ver imagen ${i + 1}`}
+      className={`relative flex-shrink-0 aspect-[3/4] rounded-lg overflow-hidden bg-gray-100 transition-all duration-200 ${
+        i === current ? 'ring-1 ring-black ring-offset-1' : 'opacity-40 hover:opacity-75'
+      }`}
+    >
+      <Image
+        src={img}
+        alt={`${name} — miniatura ${i + 1}`}
+        fill
+        sizes="80px"
+        className="object-cover"
+      />
+    </button>
+  );
+
   return (
-    <div className="flex flex-col gap-3">
-      {/* Imagen principal */}
+    /* Desktop: thumbnails left + main image. Mobile: main top + thumbnails row below */
+    <div className="flex flex-col gap-3 lg:grid lg:gap-3" style={{ gridTemplateColumns: images.length > 1 ? '72px 1fr' : '1fr' }}>
+
+      {/* Vertical thumbnails — desktop left column */}
+      {images.length > 1 && (
+        <div className="hidden lg:flex flex-col gap-2 overflow-y-auto max-h-[640px] scrollbar-none">
+          {images.map((img, i) => (
+            <ThumbnailButton key={img} img={img} i={i} />
+          ))}
+        </div>
+      )}
+
+      {/* Main image */}
       <div
         ref={imgContainerRef}
-        className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100 select-none lg:cursor-crosshair"
+        className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100 select-none cursor-dot"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setZoom(null)}
       >
-        {/* Todas las imágenes apiladas — sin key dinámico, sin remount */}
         {images.map((src, i) => (
           <Image
             key={src}
@@ -109,7 +138,6 @@ export default function ProductGallery({
           </div>
         )}
 
-        {/* Zoom icon */}
         <button
           type="button"
           aria-label="Ampliar imagen"
@@ -126,14 +154,14 @@ export default function ProductGallery({
             <button
               onClick={prev}
               aria-label="Imagen anterior"
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/85 hover:bg-white shadow flex items-center justify-center text-lg font-medium transition-colors"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/85 hover:bg-white shadow flex items-center justify-center text-lg font-medium transition-colors lg:hidden"
             >
               ‹
             </button>
             <button
               onClick={next}
               aria-label="Imagen siguiente"
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/85 hover:bg-white shadow flex items-center justify-center text-lg font-medium transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/85 hover:bg-white shadow flex items-center justify-center text-lg font-medium transition-colors lg:hidden"
             >
               ›
             </button>
@@ -141,26 +169,13 @@ export default function ProductGallery({
         )}
       </div>
 
-      {/* Miniaturas — scroll horizontal */}
+      {/* Horizontal thumbnails — mobile only */}
       {images.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto scrollbar-none pb-0.5">
+        <div className="flex lg:hidden gap-2 overflow-x-auto scrollbar-none pb-0.5">
           {images.map((img, i) => (
-            <button
-              key={img}
-              onClick={() => setCurrent(i)}
-              aria-label={`Ver imagen ${i + 1}`}
-              className={`relative flex-shrink-0 w-[72px] aspect-[3/4] rounded-lg overflow-hidden bg-gray-100 transition-all duration-150 ${
-                i === current ? 'ring-2 ring-black ring-offset-1' : 'opacity-55 hover:opacity-90'
-              }`}
-            >
-              <Image
-                src={img}
-                alt={`${name} — miniatura ${i + 1}`}
-                fill
-                sizes="80px"
-                className="object-cover"
-              />
-            </button>
+            <div key={img} className="w-[64px] flex-shrink-0">
+              <ThumbnailButton img={img} i={i} />
+            </div>
           ))}
         </div>
       )}

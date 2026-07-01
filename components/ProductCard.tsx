@@ -29,6 +29,7 @@ function getSwatchColor(opt: string): string {
 export default function ProductCard({ product, priority = false, delay = 0 }: ProductCardProps) {
   const [liked, setLiked] = useState(false);
   const [imgIdx, setImgIdx] = useState(0);
+  const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(false);
   const cardRef = useRef<HTMLElement>(null);
   const touchStartX = useRef<number | null>(null);
@@ -85,31 +86,35 @@ export default function ProductCard({ product, priority = false, delay = 0 }: Pr
       {/* Imagen */}
       <Link
         href={`/producto/${product.id}`}
-        className="block relative aspect-[3/4] overflow-hidden bg-gray-100 shrink-0 rounded-xl"
+        className="block relative aspect-[3/4] overflow-hidden bg-gray-100 shrink-0 rounded-xl cursor-dot"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
       >
         {images.length === 0 ? (
           <div className="w-full h-full bg-gray-100" />
         ) : (
-          images.map((src, i) => (
-            <Image
-              key={src}
-              src={src}
-              alt={i === 0 ? product.name : `${product.name} ${i + 1}`}
-              fill
-              className={`object-cover transition-[opacity,transform] duration-300 ease-out group-hover:scale-[1.05] group-hover:duration-700 ${
-                i === imgIdx ? 'opacity-100' : 'opacity-0'
-              }`}
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              priority={priority && i === 0}
-              loading={priority && i === 0 ? undefined : 'lazy'}
-            />
-          ))
+          images.map((src, i) => {
+            const showAlt = hovered && imgIdx === 0 && hasMultiple;
+            const isVisible = showAlt ? i === 1 : i === imgIdx;
+            return (
+              <Image
+                key={src}
+                src={src}
+                alt={i === 0 ? product.name : `${product.name} ${i + 1}`}
+                fill
+                className={`object-cover transition-opacity duration-500 ease-in-out ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+                sizes="(max-width: 1024px) 50vw, 33vw"
+                priority={priority && i === 0}
+                loading={priority && i === 0 ? undefined : 'lazy'}
+              />
+            );
+          })
         )}
 
-        {/* Overlay sutil desktop */}
-        <div className="absolute inset-0 bg-black/0 lg:group-hover:bg-black/10 transition-colors duration-500" />
+        {/* Overlay sutil */}
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
 
         {/* Badge AGOTADO */}
         {product.soldOut && (
@@ -181,21 +186,23 @@ export default function ProductCard({ product, priority = false, delay = 0 }: Pr
       </Link>
 
       {/* Info */}
-      <Link href={`/producto/${product.id}`} className="flex flex-col gap-1 pt-2.5 px-0.5 pb-1 hover:opacity-80 transition-opacity">
-        <h3 className="text-xs font-semibold uppercase tracking-tight text-black leading-snug line-clamp-2">
+      <Link href={`/producto/${product.id}`} className="flex flex-col gap-1.5 pt-3 px-0.5 pb-1 hover:opacity-80 transition-opacity">
+        <h3
+          className="text-sm text-black leading-snug line-clamp-2 font-normal"
+          style={{ fontFamily: 'var(--font-dm-serif)' }}
+        >
           {product.name}
         </h3>
-        <div className="lg:opacity-0 lg:translate-y-1.5 lg:group-hover:opacity-100 lg:group-hover:translate-y-0 transition-all duration-200">
-          <p className="text-sm font-bold text-black leading-none">
-            ${product.price.toLocaleString('es-CO')}
-            <span className="text-[10px] font-normal text-gray-400 ml-1">COP</span>
+        <div className="flex items-center gap-2 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+          <p className="text-[11px] font-normal text-gray-400 leading-none">
+            ${product.price.toLocaleString('es-CO')} COP
           </p>
           {swatches.length > 0 && (
-            <div className="flex gap-1 mt-1">
+            <div className="flex gap-1">
               {swatches.map((color, i) => (
                 <div
                   key={i}
-                  className="w-3.5 h-3.5 rounded-full border border-gray-200 shrink-0"
+                  className="w-3 h-3 rounded-full border border-gray-200 shrink-0"
                   style={{ backgroundColor: color }}
                 />
               ))}
