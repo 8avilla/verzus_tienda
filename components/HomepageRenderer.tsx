@@ -4,9 +4,10 @@ import TrustBadges from '@/components/TrustBadges';
 import CollectionGrid from '@/components/CollectionGrid';
 import LifestyleBanner from '@/components/LifestyleBanner';
 import InstagramSection from '@/components/InstagramSection';
+import TestimonialsSection from '@/components/TestimonialsSection';
 import ProductCarousel from '@/components/ProductCarousel';
 import CategoryBanner from '@/components/CategoryBanner';
-import { HomepageSection, HeroConfig, CarouselConfig, BannerConfig, TextConfig, FeaturedConfig, CollectionGridConfig, LifestyleBannerConfig, InstagramGridConfig } from '@/types/homepage';
+import { HomepageSection, HeroConfig, CarouselConfig, BannerConfig, TextConfig, FeaturedConfig, CollectionGridConfig, LifestyleBannerConfig, InstagramGridConfig, TestimonialsConfig } from '@/types/homepage';
 import { Product, CategoryDoc } from '@/types';
 
 interface Props {
@@ -104,7 +105,9 @@ export default function HomepageRenderer({ sections, allProducts, categoryMeta }
 
           case 'featured_products': {
             const cfg = section.config as FeaturedConfig;
-            const products = allProducts.filter(p => (cfg.productIds ?? []).includes(p.id));
+            const products = (cfg.useFeatured || !cfg.productIds?.length)
+              ? allProducts.filter(p => p.featured).slice(0, 4)
+              : allProducts.filter(p => (cfg.productIds ?? []).includes(p.id));
             if (products.length === 0) return null;
             return (
               <ProductCarousel
@@ -126,6 +129,11 @@ export default function HomepageRenderer({ sections, allProducts, categoryMeta }
           case 'instagram_grid': {
             const cfg = section.config as InstagramGridConfig;
             return <InstagramSection key={section.id} cfg={cfg} />;
+          }
+
+          case 'testimonials': {
+            const cfg = section.config as TestimonialsConfig;
+            return <TestimonialsSection key={section.id} cfg={cfg} />;
           }
 
           default:

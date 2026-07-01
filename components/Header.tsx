@@ -44,7 +44,6 @@ export default function Header({ navCategories = [] }: Props) {
     { label: 'Inicio', href: '/' },
     { label: 'Colección', href: '/coleccion' },
     ...navCategories.map(c => ({ label: c.name, href: `/coleccion?categoria=${encodeURIComponent(c.name)}`, slug: c.slug })),
-    { label: 'Tallas', href: isHome ? '#tallas' : '/#tallas' },
     { label: 'Preguntas frecuentes', href: isHome ? '#faq' : '/#faq' },
   ];
 

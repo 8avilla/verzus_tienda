@@ -31,6 +31,8 @@ export interface Product {
   stockTracked?: boolean;
   lastUnits?: boolean;
   features?: string[];
+  tagline?: string;
+  featured?: boolean;
 }
 
 export interface CartItem {

@@ -186,6 +186,8 @@ export default function ProductForm({ initial }: ProductFormProps) {
     stockTracked: initial?.stockTracked ?? false,
     lastUnits: initial?.lastUnits ?? false,
     features: initial?.features ?? [],
+    tagline: initial?.tagline ?? '',
+    featured: initial?.featured ?? false,
   });
 
   const [featureInput, setFeatureInput] = useState('');
@@ -431,6 +433,21 @@ export default function ProductForm({ initial }: ProductFormProps) {
           maxLength={100}
         />
         {showError('name') && <FieldError msg={formErrors.name} />}
+      </div>
+
+      {/* Tagline */}
+      <div className="flex flex-col gap-1">
+        <div className="flex items-baseline justify-between">
+          <label className="text-xs uppercase tracking-widest text-gray-500 font-medium">Tagline</label>
+          <span className="text-[10px] text-gray-400">opcional · aparece bajo el nombre en cursiva</span>
+        </div>
+        <input
+          value={form.tagline ?? ''}
+          onChange={e => setField('tagline', e.target.value)}
+          className={inputClass(false)}
+          placeholder="Ej: Diseñada para jugar. Creada para destacar."
+          maxLength={120}
+        />
       </div>
 
       {/* Categorías */}
@@ -991,6 +1008,31 @@ export default function ProductForm({ initial }: ProductFormProps) {
           >
             <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${
               form.active ? 'translate-x-6' : 'translate-x-1'
+            }`} />
+          </button>
+        </div>
+
+        <div className={`flex items-center justify-between border rounded-xl px-4 py-3 transition-colors ${
+          form.featured ? 'border-amber-300 bg-amber-50/30' : 'border-gray-200'
+        }`}>
+          <div>
+            <p className="text-sm font-medium text-black">Producto destacado ★</p>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {form.featured
+                ? 'Aparece automáticamente en la sección "Destacados" del home'
+                : 'No aparece en la sección de destacados automáticamente'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setField('featured', !form.featured)}
+            className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+              form.featured ? 'bg-amber-400' : 'bg-gray-200'
+            }`}
+            aria-label="Toggle destacado"
+          >
+            <span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${
+              form.featured ? 'translate-x-6' : 'translate-x-1'
             }`} />
           </button>
         </div>

@@ -6,6 +6,7 @@ import Header from './Header';
 import CartSidebar from './CartSidebar';
 import WhatsAppButton from './WhatsAppButton';
 import Footer from './Footer';
+import MiniFAQ from './MiniFAQ';
 import NewsletterSection from './NewsletterSection';
 
 interface Props {
@@ -26,6 +27,7 @@ export default function StoreShell({ children, announcement, navCategories = [] 
       <Header navCategories={navCategories} />
       <CartSidebar />
       {children}
+      <MiniFAQ />
       <NewsletterSection />
       <Footer />
       <WhatsAppButton />

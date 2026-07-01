@@ -57,7 +57,7 @@ const NAV_SECTIONS = [
     label: 'Ayuda',
     links: [
       { label: 'Preguntas frecuentes', href: '/#faq' },
-      { label: 'Guía de tallas', href: '/#tallas' },
+      { label: 'Guía de tallas', href: `https://wa.me/573004340482?text=${encodeURIComponent('Hola, necesito ayuda para encontrar mi talla en Verzus.')}` },
       { label: 'Políticas de envío', href: '/politicas' },
       { label: 'Cambios y devoluciones', href: '/politicas' },
     ],

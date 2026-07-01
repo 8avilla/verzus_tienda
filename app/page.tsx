@@ -3,8 +3,6 @@ import { getDb } from '@/lib/mongodb';
 import { Product, CategoryDoc } from '@/types';
 import { HomepageSection } from '@/types/homepage';
 import HomepageRenderer from '@/components/HomepageRenderer';
-import FAQ from '@/components/FAQ';
-import SizeGuide from '@/components/SizeGuide';
 import PageviewTracker from '@/components/PageviewTracker';
 
 export const metadata: Metadata = {
@@ -47,6 +45,8 @@ async function getProducts(): Promise<Product[]> {
         stock: (doc.stock as number | null) ?? null,
         stockTracked: doc.stockTracked === true,
         lastUnits: doc.lastUnits === true,
+        tagline: (doc.tagline as string | undefined) ?? '',
+        featured: doc.featured === true,
       };
     });
   } catch {
@@ -80,11 +80,45 @@ async function getHomepageSections(): Promise<HomepageSection[] | null> {
 }
 
 const DEFAULT_SECTIONS: HomepageSection[] = [
-  { id: '1', type: 'hero',              enabled: true, config: {} },
-  { id: '2', type: 'category_carousel', enabled: true, config: { categoryName: '', maxProducts: 4 } },
-  { id: '3', type: 'image_banner',      enabled: true, config: {} },
-  { id: '4', type: 'category_carousel', enabled: true, config: { categoryName: '', maxProducts: 4 } },
-  { id: '5', type: 'text_block',        enabled: true, config: { heading: '', body: '', bg: 'black' } },
+  { id: '1', type: 'hero', enabled: true, config: {
+    image: '/images/imagen_portada.png',
+    headingLine1: 'Diseñado para moverte.',
+    headingLine2: 'Hecho para acompañarte.',
+    body: 'Activewear premium con identidad propia.',
+    cta: 'Descubrir colección',
+  }},
+  { id: '2', type: 'collection_grid', enabled: true, config: { items: [
+    { title: 'Tennis', subtitle: 'Diseñada para jugar.', link: '/coleccion?categoria=Tennis' },
+    { title: 'Training', subtitle: 'Para tu mejor versión.', link: '/coleccion?categoria=Training' },
+    { title: 'Lifestyle', subtitle: 'Comodidad sin límites.', link: '/coleccion?categoria=Lifestyle' },
+    { title: 'Sets', subtitle: 'El look completo.', link: '/coleccion?categoria=Sets' },
+  ]}},
+  { id: '3', type: 'lifestyle_banner', enabled: true, config: {
+    label: 'Nueva temporada',
+    heading: 'Para tu entrenamiento. Para tu día.',
+    body: 'Piezas que se adaptan a tu ritmo, desde la primera repetición hasta el after.',
+    cta: 'Explorar colección',
+    link: '/coleccion',
+    bg: 'light',
+    images: [],
+  }},
+  { id: '4', type: 'featured_products', enabled: true, config: { useFeatured: true, productIds: [], title: 'Destacados' }},
+  { id: '5', type: 'text_block', enabled: true, config: {
+    heading: 'Ingeniería textil al servicio del movimiento.',
+    body: 'Cada pieza Verzus está fabricada con telas de alto desempeño que respiran, se mueven contigo y mantienen su forma lavado tras lavado.',
+    bg: 'black',
+  }},
+  { id: '6', type: 'category_carousel', enabled: true, config: { categoryName: '', maxProducts: 4 }},
+  { id: '7', type: 'lifestyle_banner', enabled: true, config: {
+    label: 'Verzus Lifestyle',
+    heading: 'Vista la confianza.',
+    body: 'Más que activewear: es una actitud. Diseñado para quienes no se detienen.',
+    cta: 'Ver colección',
+    link: '/coleccion',
+    bg: 'dark',
+    images: [],
+  }},
+  { id: '8', type: 'instagram_grid', enabled: true, config: { handle: '@verzus.wear', images: [] }},
 ];
 
 export default async function Home() {
@@ -122,8 +156,6 @@ export default async function Home() {
         />
       </div>
 
-      <SizeGuide />
-      <FAQ />
     </main>
   );
 }

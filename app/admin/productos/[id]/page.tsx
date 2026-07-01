@@ -36,6 +36,8 @@ async function getProduct(id: string): Promise<AdminProduct | null> {
       lastUnits: doc.lastUnits === true,
       purchaseCost: (doc.purchaseCost as number | undefined) ?? undefined,
       features: (doc.features as string[] | undefined) ?? [],
+      tagline: (doc.tagline as string | undefined) ?? '',
+      featured: doc.featured === true,
     };
   } catch {
     return null;

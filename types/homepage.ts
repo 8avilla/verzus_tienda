@@ -6,7 +6,8 @@ export type BlockType =
   | 'featured_products'
   | 'collection_grid'
   | 'lifestyle_banner'
-  | 'instagram_grid';
+  | 'instagram_grid'
+  | 'testimonials';
 
 export interface HeroSlide {
   image?: string;
@@ -43,8 +44,9 @@ export interface TextConfig {
 }
 
 export interface FeaturedConfig {
-  productIds: string[];
+  productIds?: string[];
   title?: string;
+  useFeatured?: boolean;
 }
 
 export interface CollectionGridItem {
@@ -73,6 +75,19 @@ export interface InstagramGridConfig {
   images?: string[];
 }
 
+export interface TestimonialItem {
+  name: string;
+  text: string;
+  rating?: number;
+  location?: string;
+}
+
+export interface TestimonialsConfig {
+  label?: string;
+  heading?: string;
+  items?: TestimonialItem[];
+}
+
 export type SectionConfig =
   | HeroConfig
   | CarouselConfig
@@ -81,7 +96,8 @@ export type SectionConfig =
   | FeaturedConfig
   | CollectionGridConfig
   | LifestyleBannerConfig
-  | InstagramGridConfig;
+  | InstagramGridConfig
+  | TestimonialsConfig;
 
 export interface HomepageSection {
   id: string;

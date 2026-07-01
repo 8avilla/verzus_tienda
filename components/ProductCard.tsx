@@ -185,21 +185,23 @@ export default function ProductCard({ product, priority = false, delay = 0 }: Pr
         <h3 className="text-xs font-semibold uppercase tracking-tight text-black leading-snug line-clamp-2">
           {product.name}
         </h3>
-        <p className="text-sm font-bold text-black leading-none">
-          ${product.price.toLocaleString('es-CO')}
-          <span className="text-[10px] font-normal text-gray-400 ml-1">COP</span>
-        </p>
-        {swatches.length > 0 && (
-          <div className="flex gap-1 mt-0.5">
-            {swatches.map((color, i) => (
-              <div
-                key={i}
-                className="w-3.5 h-3.5 rounded-full border border-gray-200 shrink-0"
-                style={{ backgroundColor: color }}
-              />
-            ))}
-          </div>
-        )}
+        <div className="lg:opacity-0 lg:translate-y-1.5 lg:group-hover:opacity-100 lg:group-hover:translate-y-0 transition-all duration-200">
+          <p className="text-sm font-bold text-black leading-none">
+            ${product.price.toLocaleString('es-CO')}
+            <span className="text-[10px] font-normal text-gray-400 ml-1">COP</span>
+          </p>
+          {swatches.length > 0 && (
+            <div className="flex gap-1 mt-1">
+              {swatches.map((color, i) => (
+                <div
+                  key={i}
+                  className="w-3.5 h-3.5 rounded-full border border-gray-200 shrink-0"
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </Link>
     </article>
   );

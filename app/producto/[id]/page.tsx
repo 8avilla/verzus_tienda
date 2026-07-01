@@ -54,6 +54,8 @@ const getProduct = cache(async (id: string): Promise<Product | null> => {
       stockTracked: doc.stockTracked === true,
       lastUnits: doc.lastUnits === true,
       features: (doc.features as string[] | undefined) ?? [],
+      tagline: (doc.tagline as string | undefined) ?? '',
+      featured: doc.featured === true,
     };
   } catch {
     return null;

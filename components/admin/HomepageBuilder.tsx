@@ -6,7 +6,7 @@ import Swal from 'sweetalert2';
 import {
   HomepageSection, BlockType, HeroConfig, HeroSlide, CarouselConfig,
   BannerConfig, TextConfig, FeaturedConfig, CollectionGridConfig, CollectionGridItem,
-  LifestyleBannerConfig, InstagramGridConfig,
+  LifestyleBannerConfig, InstagramGridConfig, TestimonialsConfig, TestimonialItem,
 } from '@/types/homepage';
 import { CategoryDoc, Product } from '@/types';
 
@@ -97,6 +97,15 @@ const BLOCK_META: Record<BlockType, { label: string; color: string; icon: React.
       </svg>
     ),
   },
+  testimonials: {
+    label: 'Testimonios',
+    color: 'bg-indigo-100 text-indigo-700',
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+      </svg>
+    ),
+  },
 };
 
 const BLOCK_DESCRIPTIONS: Record<BlockType, string> = {
@@ -108,6 +117,7 @@ const BLOCK_DESCRIPTIONS: Record<BlockType, string> = {
   collection_grid: 'Grilla de tarjetas hacia colecciones',
   lifestyle_banner: 'Banner editorial con texto e imágenes',
   instagram_grid: 'Grid de fotos del Instagram',
+  testimonials: 'Reseñas y opiniones de clientes',
 };
 
 function getDefaultConfig(type: BlockType): HomepageSection['config'] {
@@ -120,6 +130,7 @@ function getDefaultConfig(type: BlockType): HomepageSection['config'] {
     case 'collection_grid': return { items: [{ title: '' }] };
     case 'lifestyle_banner': return { label: 'Verzus Lifestyle', heading: '', body: '', cta: 'Descubrir más', link: '/coleccion', images: [], bg: 'light' };
     case 'instagram_grid': return { handle: '@verzus.wear', images: [] };
+    case 'testimonials': return { label: 'Lo que dicen nuestros clientes', heading: 'Ellas ya lo viven.', items: [{ name: '', text: '', rating: 5, location: '' }] };
   }
 }
 
@@ -624,41 +635,58 @@ export default function HomepageBuilder({ initial, categories, products }: Props
       case 'featured_products': {
         const cfg = s.config as FeaturedConfig;
         const ids = cfg.productIds ?? [];
+        const useFeatured = cfg.useFeatured ?? false;
         return (
           <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-1">
               <label className="text-[10px] uppercase tracking-widest text-gray-500 font-medium">Título de la sección</label>
               <input value={cfg.title ?? ''} onChange={e => updateConfig(s.id, { title: e.target.value })}
-                placeholder="Ej: Más vendidos" className={inputCls()} />
+                placeholder="Ej: Destacados" className={inputCls()} />
             </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] uppercase tracking-widest text-gray-500 font-medium">
-                Productos <span className="normal-case font-normal text-gray-400">({ids.length} seleccionados)</span>
-              </label>
-              <div className="flex flex-col gap-1 max-h-48 overflow-y-auto border border-gray-100 rounded-xl p-2">
-                {products.length === 0 ? (
-                  <p className="text-xs text-gray-400 p-2">No hay productos disponibles</p>
-                ) : products.map(p => {
-                  const checked = ids.includes(p.id);
-                  return (
-                    <label key={p.id} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors ${checked ? 'bg-black/5' : 'hover:bg-gray-50'}`}>
-                      <input type="checkbox" checked={checked} className="w-4 h-4 accent-black"
-                        onChange={e => {
-                          const next = e.target.checked ? [...ids, p.id] : ids.filter(i => i !== p.id);
-                          updateConfig(s.id, { productIds: next });
-                        }} />
-                      {p.images[0] && (
-                        <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-gray-100 shrink-0">
-                          <Image src={p.images[0]} alt={p.name} fill sizes="32px" className="object-cover" />
-                        </div>
-                      )}
-                      <span className="text-xs line-clamp-1">{p.name}</span>
-                      <span className="ml-auto text-[10px] text-gray-400 shrink-0">${p.price.toLocaleString('es-CO')}</span>
-                    </label>
-                  );
-                })}
+
+            {/* Toggle: automático vs manual */}
+            <div className={`flex items-center justify-between border rounded-xl px-3 py-2.5 transition-colors ${useFeatured ? 'border-amber-200 bg-amber-50/30' : 'border-gray-200'}`}>
+              <div>
+                <p className="text-xs font-medium text-black">Automático (productos marcados como ★ Destacado)</p>
+                <p className="text-[10px] text-gray-400 mt-0.5">Muestra hasta 4 productos con el toggle "Destacado" activado</p>
               </div>
+              <button type="button"
+                onClick={() => updateConfig(s.id, { useFeatured: !useFeatured })}
+                className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors ${useFeatured ? 'bg-amber-400' : 'bg-gray-200'}`}>
+                <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform ${useFeatured ? 'translate-x-4.5' : 'translate-x-0.5'}`} />
+              </button>
             </div>
+
+            {!useFeatured && (
+              <div className="flex flex-col gap-1.5">
+                <label className="text-[10px] uppercase tracking-widest text-gray-500 font-medium">
+                  Selección manual <span className="normal-case font-normal text-gray-400">({ids.length} seleccionados)</span>
+                </label>
+                <div className="flex flex-col gap-1 max-h-48 overflow-y-auto border border-gray-100 rounded-xl p-2">
+                  {products.length === 0 ? (
+                    <p className="text-xs text-gray-400 p-2">No hay productos disponibles</p>
+                  ) : products.map(p => {
+                    const checked = ids.includes(p.id);
+                    return (
+                      <label key={p.id} className={`flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer transition-colors ${checked ? 'bg-black/5' : 'hover:bg-gray-50'}`}>
+                        <input type="checkbox" checked={checked} className="w-4 h-4 accent-black"
+                          onChange={e => {
+                            const next = e.target.checked ? [...ids, p.id] : ids.filter(i => i !== p.id);
+                            updateConfig(s.id, { productIds: next });
+                          }} />
+                        {p.images[0] && (
+                          <div className="relative w-8 h-8 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                            <Image src={p.images[0]} alt={p.name} fill sizes="32px" className="object-cover" />
+                          </div>
+                        )}
+                        <span className="text-xs line-clamp-1">{p.name}</span>
+                        <span className="ml-auto text-[10px] text-gray-400 shrink-0">${p.price.toLocaleString('es-CO')}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         );
       }
@@ -781,6 +809,85 @@ export default function HomepageBuilder({ initial, categories, products }: Props
           </div>
         );
       }
+
+      case 'testimonials': {
+        const cfg = s.config as TestimonialsConfig;
+        const items = cfg.items ?? [];
+        function updateTestimonial(idx: number, patch: Partial<TestimonialItem>) {
+          const next = items.map((t, i) => i === idx ? { ...t, ...patch } : t);
+          updateConfig(s.id, { items: next });
+        }
+        return (
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] text-gray-400">Etiqueta</span>
+                <input value={cfg.label ?? ''} onChange={e => updateConfig(s.id, { label: e.target.value })}
+                  placeholder="Lo que dicen nuestros clientes" className={inputCls()} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-[10px] text-gray-400">Título</span>
+                <input value={cfg.heading ?? ''} onChange={e => updateConfig(s.id, { heading: e.target.value })}
+                  placeholder="Ellas ya lo viven." className={inputCls()} />
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-[10px] uppercase tracking-widest text-gray-500 font-medium">
+                Testimonios ({items.length})
+              </p>
+              {items.map((t, idx) => (
+                <div key={idx} className="border border-gray-200 rounded-xl p-3 flex flex-col gap-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-gray-400 font-medium">#{idx + 1}</span>
+                    {items.length > 1 && (
+                      <button type="button"
+                        onClick={() => updateConfig(s.id, { items: items.filter((_, i) => i !== idx) })}
+                        className="text-[11px] text-red-400 hover:text-red-600 transition-colors">
+                        Quitar
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] text-gray-400">Nombre</span>
+                      <input value={t.name} onChange={e => updateTestimonial(idx, { name: e.target.value })}
+                        placeholder="María G." className={inputCls()} />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[10px] text-gray-400">Ciudad (opcional)</span>
+                      <input value={t.location ?? ''} onChange={e => updateTestimonial(idx, { location: e.target.value })}
+                        placeholder="Bogotá" className={inputCls()} />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-gray-400">Reseña</span>
+                    <textarea rows={2} value={t.text} onChange={e => updateTestimonial(idx, { text: e.target.value })}
+                      placeholder="Increíble calidad, la tela es suave y muy cómoda..."
+                      className={`${inputCls()} resize-none`} />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-gray-400">Estrellas:</span>
+                    {[1, 2, 3, 4, 5].map(n => (
+                      <button key={n} type="button" onClick={() => updateTestimonial(idx, { rating: n })}
+                        className="text-lg leading-none transition-colors"
+                        style={{ color: n <= (t.rating ?? 5) ? '#F59E0B' : '#E5E7EB' }}>
+                        ★
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              {items.length < 6 && (
+                <button type="button"
+                  onClick={() => updateConfig(s.id, { items: [...items, { name: '', text: '', rating: 5 }] })}
+                  className="border-2 border-dashed border-gray-200 hover:border-gray-400 text-gray-400 text-xs rounded-xl py-2 transition-colors">
+                  + Agregar testimonio
+                </button>
+              )}
+            </div>
+          </div>
+        );
+      }
     }
   }
 
@@ -792,6 +899,45 @@ export default function HomepageBuilder({ initial, categories, products }: Props
       {apiError && (
         <p className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg">{apiError}</p>
       )}
+
+      {/* Preset Layout Revista */}
+      <div className="border border-dashed border-amber-200 bg-amber-50/40 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold text-amber-800">Preset: Layout Revista</p>
+          <p className="text-[10px] text-amber-600 mt-0.5">Reemplaza todas las secciones con el layout editorial premium (Hero → Colecciones → Editorial → Destacados → Texto → Carrusel → Editorial oscuro → Instagram)</p>
+        </div>
+        <button
+          type="button"
+          onClick={async () => {
+            const ok = await Swal.fire({
+              title: '¿Aplicar Layout Revista?',
+              text: 'Esto reemplazará todas las secciones actuales. El contenido (imágenes, categorías) deberás configurarlo después.',
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonColor: '#000',
+              cancelButtonColor: '#6b7280',
+              confirmButtonText: 'Sí, aplicar',
+              cancelButtonText: 'Cancelar',
+            });
+            if (!ok.isConfirmed) return;
+            setSections([
+              { id: crypto.randomUUID(), type: 'hero', enabled: true, config: { slides: [{ image: '/images/imagen_portada.png', headingLine1: 'Diseñado para moverte.', headingLine2: 'Hecho para acompañarte.', body: 'Activewear premium con identidad propia.', cta: 'Descubrir colección' }] } },
+              { id: crypto.randomUUID(), type: 'collection_grid', enabled: true, config: { items: [{ title: 'Tennis', subtitle: 'Diseñada para jugar.', link: '/coleccion?categoria=Tennis' }, { title: 'Training', subtitle: 'Para tu mejor versión.', link: '/coleccion?categoria=Training' }, { title: 'Lifestyle', subtitle: 'Comodidad sin límites.', link: '/coleccion?categoria=Lifestyle' }, { title: 'Sets', subtitle: 'El look completo.', link: '/coleccion?categoria=Sets' }] } },
+              { id: crypto.randomUUID(), type: 'lifestyle_banner', enabled: true, config: { label: 'Nueva temporada', heading: 'Para tu entrenamiento. Para tu día.', body: 'Piezas que se adaptan a tu ritmo, desde la primera repetición hasta el after.', cta: 'Explorar colección', link: '/coleccion', bg: 'light', images: [] } },
+              { id: crypto.randomUUID(), type: 'featured_products', enabled: true, config: { useFeatured: true, productIds: [], title: 'Destacados' } },
+              { id: crypto.randomUUID(), type: 'text_block', enabled: true, config: { heading: 'Ingeniería textil al servicio del movimiento.', body: 'Cada pieza Verzus está fabricada con telas de alto desempeño que respiran, se mueven contigo y mantienen su forma lavado tras lavado.', bg: 'black' } },
+              { id: crypto.randomUUID(), type: 'category_carousel', enabled: true, config: { categoryName: '', maxProducts: 4 } },
+              { id: crypto.randomUUID(), type: 'lifestyle_banner', enabled: true, config: { label: 'Verzus Lifestyle', heading: 'Vista la confianza.', body: 'Más que activewear: es una actitud. Diseñado para quienes no se detienen.', cta: 'Ver colección', link: '/coleccion', bg: 'dark', images: [] } },
+              { id: crypto.randomUUID(), type: 'instagram_grid', enabled: true, config: { handle: '@verzus.wear', images: [] } },
+            ]);
+            setExpanded(new Set());
+            Toast.fire({ icon: 'success', title: 'Layout Revista aplicado — configura las secciones y guarda' });
+          }}
+          className="shrink-0 text-xs font-semibold text-amber-800 border border-amber-300 hover:bg-amber-100 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+        >
+          Aplicar preset
+        </button>
+      </div>
 
       {/* Lista de secciones */}
       <div className="flex flex-col gap-2">

@@ -59,6 +59,13 @@ export default function ProductColorView({ product, reviewStats }: { product: Pr
           {product.name}
         </h1>
 
+        {/* Tagline */}
+        {product.tagline && (
+          <p className="text-sm text-gray-500 leading-snug -mt-2" style={{ fontFamily: 'var(--font-dm-serif)', fontStyle: 'italic' }}>
+            {product.tagline}
+          </p>
+        )}
+
         {/* Precio */}
         <p className="text-2xl font-bold text-black">
           ${product.price.toLocaleString('es-CO')}
