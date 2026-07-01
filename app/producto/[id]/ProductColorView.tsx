@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Product } from '@/types';
 import ProductGallery from './ProductGallery';
 import AddToCart from './AddToCart';
@@ -41,6 +42,22 @@ export default function ProductColorView({ product, reviewStats }: { product: Pr
   }
 
   return (
+    <div className="flex flex-col gap-8 lg:gap-12">
+
+    {/* Breadcrumb */}
+    <nav className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-400">
+      <Link href="/" className="hover:text-black transition-colors">Inicio</Link>
+      <span>/</span>
+      <Link
+        href={`/coleccion?categoria=${encodeURIComponent(product.category)}`}
+        className="hover:text-black transition-colors"
+      >
+        {product.category}
+      </Link>
+      <span>/</span>
+      <span className="text-black truncate max-w-[180px]">{product.name}</span>
+    </nav>
+
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
 
       <ProductGallery
@@ -99,6 +116,7 @@ export default function ProductColorView({ product, reviewStats }: { product: Pr
         {/* Acordeones */}
         <ProductTabs description={product.description} features={product.features} />
       </div>
+    </div>
     </div>
   );
 }

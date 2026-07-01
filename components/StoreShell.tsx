@@ -8,6 +8,7 @@ import WhatsAppButton from './WhatsAppButton';
 import Footer from './Footer';
 import MiniFAQ from './MiniFAQ';
 import NewsletterSection from './NewsletterSection';
+import MobileTabBar from './MobileTabBar';
 
 interface Props {
   children: React.ReactNode;
@@ -31,6 +32,9 @@ export default function StoreShell({ children, announcement, navCategories = [] 
       <NewsletterSection />
       <Footer />
       <WhatsAppButton />
+      {/* Spacer para que el contenido no quede tapado por el tab bar en mobile */}
+      <div className="h-16 lg:hidden" />
+      <MobileTabBar />
     </>
   );
 }

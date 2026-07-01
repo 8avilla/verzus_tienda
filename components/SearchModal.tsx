@@ -113,7 +113,7 @@ export default function SearchModal({ open, onClose }: Props) {
                     onClick={onClose}
                     className="flex items-center gap-4 px-5 py-3 hover:bg-gray-50 transition-colors"
                   >
-                    <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                    <div className="relative w-10 aspect-[3/4] rounded-lg overflow-hidden bg-gray-100 shrink-0">
                       {r.image && (
                         <Image src={r.image} alt={r.name} fill sizes="48px" className="object-cover" />
                       )}
@@ -123,11 +123,11 @@ export default function SearchModal({ open, onClose }: Props) {
                       <p className="text-[10px] uppercase tracking-wider text-gray-400">{r.category}</p>
                     </div>
                     <div className="shrink-0 text-right">
-                      <p className="text-sm font-bold text-black" style={{ fontFamily: 'var(--font-dm-serif)' }}>
+                      <p className="text-sm text-black" style={{ fontFamily: 'var(--font-dm-serif)' }}>
                         ${r.price.toLocaleString('es-CO')}
                       </p>
                       {r.soldOut && (
-                        <p className="text-[10px] uppercase tracking-wider" style={{ color: 'var(--accent)' }}>Agotado</p>
+                        <p className="text-[10px] uppercase tracking-wider text-gray-400">Agotado</p>
                       )}
                     </div>
                   </Link>
@@ -135,13 +135,51 @@ export default function SearchModal({ open, onClose }: Props) {
               ))}
             </ul>
           ) : query.length >= 2 && !loading ? (
-            <p className="py-10 text-center text-sm text-gray-400">
-              Sin resultados para &ldquo;{query}&rdquo;
-            </p>
+            <div className="py-10 text-center flex flex-col items-center gap-4">
+              <p className="text-sm text-gray-400">Sin resultados para &ldquo;{query}&rdquo;</p>
+              <Link
+                href={`/coleccion`}
+                onClick={onClose}
+                className="text-[10px] uppercase tracking-widest border-b border-gray-300 hover:border-black text-gray-400 hover:text-black transition-colors pb-px"
+              >
+                Ver colección completa →
+              </Link>
+            </div>
           ) : query.length === 0 ? (
-            <p className="py-10 text-center text-xs uppercase tracking-widest text-gray-300">
-              Escribe para buscar
-            </p>
+            <div className="px-5 py-6 flex flex-col gap-5">
+              <p className="text-[10px] uppercase tracking-widest text-gray-300">Búsquedas populares</p>
+              <div className="flex flex-wrap gap-2">
+                {['Camisetas', 'Gorras', 'Accesorios', 'Nuevos', 'Agotados no'].map(term => (
+                  <button
+                    key={term}
+                    onClick={() => { setQuery(term); search(term); }}
+                    className="px-3 py-1.5 rounded-full border border-gray-200 text-xs text-gray-500 hover:border-black hover:text-black transition-colors"
+                  >
+                    {term}
+                  </button>
+                ))}
+              </div>
+              <div className="border-t border-gray-100 pt-4 flex flex-col gap-2">
+                <p className="text-[10px] uppercase tracking-widest text-gray-300">Explorar</p>
+                {[
+                  { label: 'Colección completa', href: '/coleccion' },
+                  { label: 'Novedades', href: '/coleccion' },
+                  { label: 'Nuestra historia', href: '/nosotros' },
+                ].map(link => (
+                  <Link
+                    key={link.label}
+                    href={link.href}
+                    onClick={onClose}
+                    className="text-sm text-gray-500 hover:text-black transition-colors flex items-center justify-between py-1"
+                  >
+                    {link.label}
+                    <svg className="w-3.5 h-3.5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                  </Link>
+                ))}
+              </div>
+            </div>
           ) : null}
         </div>
       </div>

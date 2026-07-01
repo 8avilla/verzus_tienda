@@ -80,7 +80,7 @@ export default function CartSidebar() {
             </h2>
             {totalItems > 0 && (
               <p className="text-[11px] uppercase tracking-widest text-gray-400 mt-0.5">
-                {totalItems} {totalItems === 1 ? 'ítem' : 'ítems'}
+                {totalItems} {totalItems === 1 ? 'ítem' : 'ítems'} · ${totalPrice.toLocaleString('es-CO')}
               </p>
             )}
           </div>
@@ -181,7 +181,7 @@ export default function CartSidebar() {
                       </div>
                       <button
                         onClick={() => removeItem(item.product.id, buildSelectionsKey(item.selections))}
-                        className="text-[10px] uppercase tracking-widest text-gray-300 hover:text-white transition-colors"
+                        className="text-[10px] uppercase tracking-widest text-gray-300 hover:text-red-400 transition-colors"
                         aria-label="Eliminar"
                       >
                         Eliminar
@@ -227,26 +227,17 @@ export default function CartSidebar() {
         {/* Footer */}
         {items.length > 0 && (
           <div className="px-6 py-5 border-t border-gray-100 flex flex-col gap-3">
-            {/* Subtotal */}
-            <div className="flex justify-between items-baseline">
-              <span className="text-xs uppercase tracking-widest text-gray-400">Subtotal</span>
-              <span className="text-sm font-semibold text-black">
-                ${totalPrice.toLocaleString('es-CO')}
-              </span>
-            </div>
-
-            {/* Envío estimado */}
+            {/* Envío */}
             <div className="flex justify-between items-center">
               <span className="text-xs uppercase tracking-widest text-gray-400">Envío</span>
-              <span className="text-xs font-semibold text-black">$20.000</span>
+              <span className="text-xs text-gray-400 italic">Se calcula al pagar</span>
             </div>
 
-            {/* Total estimado */}
+            {/* Subtotal */}
             <div className="flex justify-between items-baseline pt-2 border-t border-gray-100">
-              <span className="text-xs uppercase tracking-widest text-gray-400">Total</span>
+              <span className="text-xs uppercase tracking-widest text-gray-400">Subtotal</span>
               <span className="text-2xl text-black" style={{ fontFamily: 'var(--font-dm-serif)' }}>
-                ${(totalPrice + 20000).toLocaleString('es-CO')}
-                <span className="text-xs text-gray-400 font-sans ml-1">est.</span>
+                ${totalPrice.toLocaleString('es-CO')}
               </span>
             </div>
 

@@ -115,9 +115,14 @@ function CheckoutSuccessContent() {
               <h1 className="text-2xl md:text-3xl font-bold text-black mb-3" style={{ fontFamily: 'var(--font-dm-serif)' }}>
                 ¡Pago Confirmado!
               </h1>
-              <p className="text-gray-500 text-sm max-w-lg mx-auto">
-                Tu pago por **${order.totalPrice.toLocaleString('es-CO')}** ha sido procesado de forma exitosa mediante Bold.co. Estamos preparando tu envío.
+              <p className="text-gray-500 text-sm max-w-lg mx-auto mb-3">
+                Tu pedido por ${order.totalPrice.toLocaleString('es-CO')} ha sido procesado exitosamente. Estamos preparando tu envío.
               </p>
+              {order.shippingDetails?.email && (
+                <p className="text-xs text-gray-400 max-w-sm mx-auto">
+                  Recibirás una confirmación en <span className="text-black font-medium">{order.shippingDetails.email}</span> con los detalles de tu pedido.
+                </p>
+              )}
             </>
           )}
 
@@ -132,9 +137,14 @@ function CheckoutSuccessContent() {
               <h1 className="text-2xl md:text-3xl font-bold text-black mb-3" style={{ fontFamily: 'var(--font-dm-serif)' }}>
                 Pago en Procesamiento
               </h1>
-              <p className="text-gray-500 text-sm max-w-lg mx-auto">
-                El estado de tu transacción es pendiente en la pasarela de Bold.co. Actualizaremos tu pedido en cuanto recibamos la confirmación del banco.
+              <p className="text-gray-500 text-sm max-w-lg mx-auto mb-3">
+                Tu transacción está pendiente de confirmación por parte del banco. Actualizaremos tu pedido en cuanto recibamos la respuesta.
               </p>
+              {order.shippingDetails?.email && (
+                <p className="text-xs text-gray-400 max-w-sm mx-auto">
+                  Te notificaremos a <span className="text-black font-medium">{order.shippingDetails.email}</span> cuando el pago sea confirmado.
+                </p>
+              )}
             </>
           )}
 

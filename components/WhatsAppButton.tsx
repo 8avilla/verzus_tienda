@@ -4,7 +4,7 @@ export default function WhatsAppButton() {
       href={`https://wa.me/573004340482?text=${encodeURIComponent('Hola Verzus, me interesa un producto de la tienda. ¿Pueden ayudarme?')}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex fixed bottom-5 right-4 z-50 w-14 h-14 rounded-full items-center justify-center shadow-lg hover:scale-110 transition-transform bg-black"
+      className="hidden lg:flex fixed bottom-5 right-4 z-50 w-14 h-14 rounded-full items-center justify-center shadow-lg hover:scale-110 transition-transform bg-black"
       aria-label="Contactar por WhatsApp"
     >
       <svg className="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 24 24">

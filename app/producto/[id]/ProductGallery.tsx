@@ -122,6 +122,7 @@ export default function ProductGallery({
         onTouchEnd={handleTouchEnd}
         onMouseMove={!isVideoSlot(current) ? handleMouseMove : undefined}
         onMouseLeave={() => setZoom(null)}
+        onTouchMove={() => setZoom(null)}
       >
         {/* Video slot */}
         {hasVideo && (
@@ -174,11 +175,12 @@ export default function ProductGallery({
           </div>
         )}
 
+        {/* Botón zoom — solo desktop, donde el mouse move funciona */}
         {!isVideoSlot(current) && (
           <button
             type="button"
             aria-label="Ampliar imagen"
-            className="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-white/85 hover:bg-white shadow flex items-center justify-center transition-colors"
+            className="hidden lg:flex absolute bottom-4 right-4 w-8 h-8 rounded-full bg-white/85 hover:bg-white shadow items-center justify-center transition-colors"
             onClick={() => setZoom(zoom ? null : { x: 50, y: 50 })}
           >
             <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">

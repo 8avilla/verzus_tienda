@@ -53,6 +53,20 @@ export default function CarritoPage() {
   const [submitError, setSubmitError] = useState('');
   const [loadingStep, setLoadingStep] = useState('');
   const [boldReady, setBoldReady] = useState(false);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  function fieldError(field: keyof typeof shippingDetails): string {
+    if (!touched[field]) return '';
+    const v = shippingDetails[field].trim();
+    if (!v) return 'Campo obligatorio';
+    if (field === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'Email inválido';
+    if (field === 'phone' && !/^\d{7,15}$/.test(v.replace(/\s/g, ''))) return 'Número inválido';
+    return '';
+  }
+
+  function touch(field: string) {
+    setTouched(t => ({ ...t, [field]: true }));
+  }
   // Reutilizar el mismo pedido en reintentos de la misma sesión
   const pendingOrderId = useRef<string | null>(null);
   const pendingOrderTotal = useRef<number | null>(null);
@@ -339,12 +353,6 @@ export default function CarritoPage() {
                 </h2>
 
                 <form id="checkout-form" onSubmit={handleBoldCheckout} className="flex flex-col gap-4">
-                  {submitError && (
-                    <div className="bg-gray-50 border-l-2 border-black p-3.5 text-xs text-black">
-                      {submitError}
-                    </div>
-                  )}
-
                   <div>
                     <label className="block text-xs uppercase tracking-wider text-gray-400 mb-1.5 font-semibold">
                       Nombre Completo
@@ -356,9 +364,11 @@ export default function CarritoPage() {
                       disabled={isSubmitting}
                       value={shippingDetails.name}
                       onChange={e => setShippingDetails({ ...shippingDetails, name: e.target.value })}
-                      className="w-full border border-gray-200 px-4 py-3.5 text-sm text-black focus:outline-none focus:border-black transition-colors rounded-lg"
+                      onBlur={() => touch('name')}
+                      className={`w-full border px-4 py-3.5 text-sm text-black focus:outline-none transition-colors rounded-lg ${fieldError('name') ? 'border-red-300 focus:border-red-400' : 'border-gray-200 focus:border-black'}`}
                       placeholder="Ej: Juan García"
                     />
+                    {fieldError('name') && <p className="mt-1 text-[11px] text-red-400">{fieldError('name')}</p>}
                   </div>
 
                   <div>
@@ -373,9 +383,11 @@ export default function CarritoPage() {
                       disabled={isSubmitting}
                       value={shippingDetails.email}
                       onChange={e => setShippingDetails({ ...shippingDetails, email: e.target.value })}
-                      className="w-full border border-gray-200 px-4 py-3.5 text-sm text-black focus:outline-none focus:border-black transition-colors rounded-lg"
+                      onBlur={() => touch('email')}
+                      className={`w-full border px-4 py-3.5 text-sm text-black focus:outline-none transition-colors rounded-lg ${fieldError('email') ? 'border-red-300 focus:border-red-400' : 'border-gray-200 focus:border-black'}`}
                       placeholder="ejemplo@correo.com"
                     />
+                    {fieldError('email') && <p className="mt-1 text-[11px] text-red-400">{fieldError('email')}</p>}
                   </div>
 
                   <div>
@@ -390,9 +402,11 @@ export default function CarritoPage() {
                       disabled={isSubmitting}
                       value={shippingDetails.phone}
                       onChange={e => setShippingDetails({ ...shippingDetails, phone: e.target.value })}
-                      className="w-full border border-gray-200 px-4 py-3.5 text-sm text-black focus:outline-none focus:border-black transition-colors rounded-lg"
+                      onBlur={() => touch('phone')}
+                      className={`w-full border px-4 py-3.5 text-sm text-black focus:outline-none transition-colors rounded-lg ${fieldError('phone') ? 'border-red-300 focus:border-red-400' : 'border-gray-200 focus:border-black'}`}
                       placeholder="Ej: 3004340482"
                     />
+                    {fieldError('phone') && <p className="mt-1 text-[11px] text-red-400">{fieldError('phone')}</p>}
                   </div>
 
                   <div>
@@ -406,9 +420,11 @@ export default function CarritoPage() {
                       disabled={isSubmitting}
                       value={shippingDetails.address}
                       onChange={e => setShippingDetails({ ...shippingDetails, address: e.target.value })}
-                      className="w-full border border-gray-200 px-4 py-3.5 text-sm text-black focus:outline-none focus:border-black transition-colors rounded-lg"
+                      onBlur={() => touch('address')}
+                      className={`w-full border px-4 py-3.5 text-sm text-black focus:outline-none transition-colors rounded-lg ${fieldError('address') ? 'border-red-300 focus:border-red-400' : 'border-gray-200 focus:border-black'}`}
                       placeholder="Ej: Calle 10 # 5-12, Apto 402"
                     />
+                    {fieldError('address') && <p className="mt-1 text-[11px] text-red-400">{fieldError('address')}</p>}
                   </div>
 
                   <div>

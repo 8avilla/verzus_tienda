@@ -193,12 +193,13 @@ export default function ProductCard({ product, priority = false, delay = 0 }: Pr
         >
           {product.name}
         </h3>
-        <div className="flex items-center gap-2 opacity-0 translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+        {/* Precio: siempre visible en mobile, reveal en hover para desktop */}
+        <div className="flex items-center gap-2 lg:opacity-0 lg:translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
           <p className="text-[11px] font-normal text-gray-400 leading-none">
             ${product.price.toLocaleString('es-CO')} COP
           </p>
           {swatches.length > 0 && (
-            <div className="flex gap-1">
+            <div className="hidden lg:flex gap-1">
               {swatches.map((color, i) => (
                 <div
                   key={i}

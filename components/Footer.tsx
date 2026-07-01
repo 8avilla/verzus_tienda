@@ -45,21 +45,21 @@ const SOCIAL = [
 
 const NAV_SECTIONS = [
   {
-    label: 'Compra',
+    label: 'Tienda',
     links: [
-      { label: 'Nueva colección', href: '/coleccion' },
       { label: 'Colección completa', href: '/coleccion' },
-      { label: 'Seguimiento de pedido', href: '/seguimiento' },
+      { label: 'Novedades', href: '/coleccion' },
       { label: 'Carrito', href: '/carrito' },
+      { label: 'Seguimiento de pedido', href: '/seguimiento' },
     ],
   },
   {
     label: 'Ayuda',
     links: [
       { label: 'Preguntas frecuentes', href: '/#faq' },
-      { label: 'Guía de tallas', href: `https://wa.me/573004340482?text=${encodeURIComponent('Hola, necesito ayuda para encontrar mi talla en Verzus.')}` },
       { label: 'Políticas de envío', href: '/politicas' },
       { label: 'Cambios y devoluciones', href: '/politicas' },
+      { label: 'Contáctanos', href: `https://wa.me/573004340482` },
     ],
   },
   {
@@ -68,13 +68,6 @@ const NAV_SECTIONS = [
       { label: 'Nuestra historia', href: '/nosotros' },
       { label: 'Términos y condiciones', href: '/terminos' },
       { label: 'Política de privacidad', href: '/politicas' },
-    ],
-  },
-  {
-    label: 'Mi cuenta',
-    links: [
-      { label: 'Seguimiento de pedido', href: '/seguimiento' },
-      { label: 'Contáctanos', href: `https://wa.me/573004340482` },
     ],
   },
 ];
@@ -165,7 +158,7 @@ export default function Footer() {
           </div>
 
           {/* Nav sections — desktop grid, mobile accordions */}
-          <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 lg:gap-6">
+          <div className="lg:col-span-4 grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-0 lg:gap-6">
             {NAV_SECTIONS.map(section => (
               <div key={section.label} className="border-b lg:border-0 border-gray-100">
                 {/* Mobile accordion toggle */}
