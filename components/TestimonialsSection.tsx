@@ -28,7 +28,7 @@ export default function TestimonialsSection({ cfg }: { cfg: TestimonialsConfig }
   if (items.length === 0) return null;
 
   return (
-    <section className="py-16 px-4 bg-gray-50 border-t border-gray-100">
+    <section className="py-16 px-4 border-t" style={{ backgroundColor: 'var(--warm-50)', borderColor: 'var(--warm-border)' }}>
       <div className="max-w-6xl mx-auto flex flex-col gap-10">
 
         <div className="text-center flex flex-col gap-2">

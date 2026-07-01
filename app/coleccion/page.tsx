@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { getDb } from '@/lib/mongodb';
 import { Product, CategoryDoc } from '@/types';
 import ProductGrid from '@/components/ProductGrid';
+import CategoryBanner from '@/components/CategoryBanner';
 
 export const metadata: Metadata = {
   title: 'Colección completa — Verzus',
@@ -82,11 +83,19 @@ export default async function ColeccionPage({
     ? categoria
     : 'todos';
 
+  const activeCatMeta = categories.find(c => c.name === initialCategory);
+
   return (
     <main className="flex-1 bg-white">
+
+      {/* Hero editorial cuando hay categoría activa */}
+      {initialCategory !== 'todos' && (
+        <CategoryBanner categoryName={initialCategory} />
+      )}
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
 
-        <nav className="flex items-center gap-2 text-xs text-gray-400 mb-10">
+        <nav className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-400 mb-10">
           <Link href="/" className="hover:text-black transition-colors">Inicio</Link>
           <span>/</span>
           {initialCategory !== 'todos' ? (
@@ -99,6 +108,11 @@ export default async function ColeccionPage({
             <span className="text-black">Colección</span>
           )}
         </nav>
+
+        {/* Subtítulo de categoría si existe */}
+        {activeCatMeta?.subtitle && (
+          <p className="text-sm text-gray-400 -mt-4 mb-8 max-w-xl">{activeCatMeta.subtitle}</p>
+        )}
 
         <ProductGrid
           products={products}

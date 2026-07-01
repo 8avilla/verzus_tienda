@@ -1,8 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Product, CategoryDoc } from '@/types';
 import ProductCard from '@/components/ProductCard';
+
+type SortKey = 'default' | 'price-asc' | 'price-desc' | 'name';
 
 interface ProductGridProps {
   products: Product[];
@@ -12,10 +14,19 @@ interface ProductGridProps {
 
 export default function ProductGrid({ products, categories, initialCategory = 'todos' }: ProductGridProps) {
   const [active, setActive] = useState(initialCategory);
+  const [sort, setSort] = useState<SortKey>('default');
 
   const filtered = products.filter(p =>
     active === 'todos' || p.categories.includes(active)
   );
+
+  const sorted = useMemo(() => {
+    const arr = [...filtered];
+    if (sort === 'price-asc') return arr.sort((a, b) => a.price - b.price);
+    if (sort === 'price-desc') return arr.sort((a, b) => b.price - a.price);
+    if (sort === 'name') return arr.sort((a, b) => a.name.localeCompare(b.name, 'es'));
+    return arr;
+  }, [filtered, sort]);
 
   const allFilters = [
     { label: 'Todos', value: 'todos' },
@@ -38,30 +49,42 @@ export default function ProductGrid({ products, categories, initialCategory = 't
         </h2>
       </div>
 
-      {/* Filtros categoría — tabs con underline */}
-      <div className="flex gap-6 overflow-x-auto scrollbar-none border-b border-gray-100 pb-0">
-        {allFilters.map(f => (
-          <button
-            key={f.value}
-            onClick={() => setActive(f.value)}
-            className={`shrink-0 pb-3 text-sm font-semibold uppercase tracking-widest transition-all duration-200 border-b-2 -mb-px ${
-              active === f.value
-                ? 'text-black border-black'
-                : 'text-gray-400 border-transparent hover:text-black'
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
+      {/* Filtros + Sort */}
+      <div className="flex items-end justify-between gap-4 border-b border-gray-100 pb-0">
+        <div className="flex gap-6 overflow-x-auto scrollbar-none">
+          {allFilters.map(f => (
+            <button
+              key={f.value}
+              onClick={() => setActive(f.value)}
+              className={`shrink-0 pb-3 text-sm font-semibold uppercase tracking-widest transition-all duration-200 border-b-2 -mb-px ${
+                active === f.value
+                  ? 'text-black border-black'
+                  : 'text-gray-400 border-transparent hover:text-black'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+        <select
+          value={sort}
+          onChange={e => setSort(e.target.value as SortKey)}
+          className="shrink-0 pb-3 text-[11px] uppercase tracking-widest text-gray-400 bg-transparent border-none outline-none cursor-pointer hover:text-black transition-colors mb-px"
+        >
+          <option value="default">Relevancia</option>
+          <option value="price-asc">Precio: menor a mayor</option>
+          <option value="price-desc">Precio: mayor a menor</option>
+          <option value="name">Nombre A–Z</option>
+        </select>
       </div>
 
       <p className="text-[10px] text-gray-400 uppercase tracking-widest">
-        {filtered.length} {filtered.length !== 1 ? 'productos' : 'producto'}
+        {sorted.length} {sorted.length !== 1 ? 'productos' : 'producto'}
       </p>
 
-      {filtered.length > 0 ? (
+      {sorted.length > 0 ? (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-8 lg:gap-x-8 lg:gap-y-14">
-          {filtered.map((product, i) => (
+          {sorted.map((product, i) => (
             <ProductCard
               key={product.id}
               product={product}
@@ -71,8 +94,8 @@ export default function ProductGrid({ products, categories, initialCategory = 't
           ))}
         </div>
       ) : (
-        <div className="py-24 text-center text-gray-300 text-sm tracking-widest uppercase">
-          Sin productos en esta categoría
+        <div className="py-24 text-center">
+          <p className="text-gray-300 text-sm tracking-widest uppercase">Sin productos en esta categoría</p>
         </div>
       )}
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCart, buildSelectionsKey } from '@/components/CartProvider';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 
 interface UpsellProduct {
   id: string;
@@ -25,6 +26,7 @@ export default function CartSidebar() {
     useCart();
   const router = useRouter();
   const [upsell, setUpsell] = useState<UpsellProduct[]>([]);
+  const recentlyViewed = useRecentlyViewed();
 
   useEffect(() => {
     if (!isOpen || items.length === 0) { setUpsell([]); return; }
@@ -66,7 +68,7 @@ export default function CartSidebar() {
       )}
 
       <aside
-        className={`fixed top-0 right-0 h-full w-full max-w-sm bg-white z-50 flex flex-col border-l-4 border-black transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
+        className={`fixed top-0 right-0 h-full w-full max-w-sm bg-white z-50 flex flex-col shadow-2xl transition-transform duration-300 ease-out ${isOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         aria-label="Carrito de compras"
       >
@@ -92,11 +94,37 @@ export default function CartSidebar() {
         {/* Items */}
         <div className="flex-1 overflow-y-auto px-6 py-6">
           {items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
-              <svg className="w-12 h-12 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
-              </svg>
-              <p className="text-xs uppercase tracking-widest text-gray-400">Carrito vacío</p>
+            <div className="flex flex-col gap-6 py-6">
+              <div className="flex flex-col items-center gap-3 text-center py-4">
+                <svg className="w-10 h-10 text-gray-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" />
+                </svg>
+                <p className="text-xs uppercase tracking-widest text-gray-400">Tu carrito está vacío</p>
+                <Link href="/coleccion" onClick={closeSidebar} className="text-[10px] uppercase tracking-widest border-b border-gray-300 hover:border-black text-gray-400 hover:text-black transition-colors pb-px">
+                  Explorar colección →
+                </Link>
+              </div>
+              {recentlyViewed.length > 0 && (
+                <div className="flex flex-col gap-3">
+                  <p className="text-[10px] uppercase tracking-widest text-gray-400">Vistos recientemente</p>
+                  <div className="flex flex-col gap-3">
+                    {recentlyViewed.slice(0, 3).map(p => (
+                      <Link key={p.id} href={`/producto/${p.id}`} onClick={closeSidebar} className="flex items-center gap-3 group">
+                        <div className="relative w-10 aspect-[3/4] rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                          {p.image && <Image src={p.image} alt={p.name} fill sizes="48px" className="object-cover group-hover:scale-105 transition-transform duration-300" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-black truncate group-hover:opacity-70 transition-opacity" style={{ fontFamily: 'var(--font-dm-serif)' }}>{p.name}</p>
+                          <p className="text-[10px] text-gray-400">${p.price.toLocaleString('es-CO')} COP</p>
+                        </div>
+                        <svg className="w-4 h-4 text-gray-300 group-hover:text-black transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        </svg>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <ul className="flex flex-col divide-y divide-gray-100">
@@ -106,7 +134,7 @@ export default function CartSidebar() {
                 return (
                   <li key={itemKey} className="py-4 flex gap-4 items-center">
                     {/* Imagen del Producto */}
-                    <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
+                    <div className="relative w-10 aspect-[3/4] rounded-lg overflow-hidden bg-gray-50 border border-gray-100 shrink-0">
                       {item.product.images && item.product.images[0] ? (
                         <Image
                           src={item.product.images[0]}

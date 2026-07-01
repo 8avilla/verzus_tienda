@@ -23,14 +23,14 @@ export default function MiniFAQ() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="border-t border-gray-100 py-14 px-4">
+    <section id="faq" className="border-t py-14 px-4" style={{ borderColor: 'var(--warm-border)', backgroundColor: 'var(--warm-50)' }}>
       <div className="max-w-2xl mx-auto flex flex-col gap-6">
 
         <p className="text-[10px] uppercase tracking-[0.22em] text-gray-400 font-semibold text-center">
           Preguntas frecuentes
         </p>
 
-        <div className="flex flex-col divide-y divide-gray-100">
+        <div className="flex flex-col divide-y" style={{ borderColor: 'var(--warm-200)' }}>
           {ITEMS.map((item, i) => (
             <div key={i}>
               <button

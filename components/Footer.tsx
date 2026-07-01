@@ -65,7 +65,7 @@ const NAV_SECTIONS = [
   {
     label: 'La marca',
     links: [
-      { label: 'Nuestra historia', href: '/' },
+      { label: 'Nuestra historia', href: '/nosotros' },
       { label: 'Términos y condiciones', href: '/terminos' },
       { label: 'Política de privacidad', href: '/politicas' },
     ],
@@ -79,12 +79,34 @@ const NAV_SECTIONS = [
   },
 ];
 
-const PAYMENT_ICONS = [
-  { label: 'Visa', text: 'VISA' },
-  { label: 'Mastercard', text: 'MC' },
-  { label: 'Amex', text: 'AMEX' },
-  { label: 'PSE', text: 'PSE' },
-];
+function PaymentIcons() {
+  return (
+    <div className="flex items-center gap-2.5">
+      {/* Visa */}
+      <div className="flex items-center justify-center h-7 px-2.5 rounded border border-gray-200 bg-white">
+        <svg width="38" height="12" viewBox="0 0 38 12" fill="none">
+          <text x="0" y="11" fontFamily="Arial,sans-serif" fontWeight="700" fontSize="13" fill="#1A1F71" fontStyle="italic">VISA</text>
+        </svg>
+      </div>
+      {/* Mastercard */}
+      <div className="flex items-center justify-center h-7 px-2 rounded border border-gray-200 bg-white">
+        <svg width="28" height="18" viewBox="0 0 28 18">
+          <circle cx="10" cy="9" r="8" fill="#EB001B" />
+          <circle cx="18" cy="9" r="8" fill="#F79E1B" />
+          <path d="M14 3.35A8 8 0 0114 14.65 8 8 0 0114 3.35z" fill="#FF5F00"/>
+        </svg>
+      </div>
+      {/* PSE */}
+      <div className="flex items-center justify-center h-7 px-2.5 rounded border border-gray-200 bg-white">
+        <span className="text-[9px] font-black tracking-wider text-[#006EBA]">PSE</span>
+      </div>
+      {/* Nequi */}
+      <div className="flex items-center justify-center h-7 px-2.5 rounded border border-gray-200 bg-white">
+        <span className="text-[9px] font-black tracking-wider" style={{ color: '#6B1F97' }}>NEQUI</span>
+      </div>
+    </div>
+  );
+}
 
 export default function Footer() {
   const [open, setOpen] = useState<string | null>(null);
@@ -186,16 +208,7 @@ export default function Footer() {
           <p className="text-[11px] text-gray-400">
             © {new Date().getFullYear()} VERZUS. Todos los derechos reservados.
           </p>
-          <div className="flex items-center gap-2">
-            {PAYMENT_ICONS.map(({ label, text }) => (
-              <div
-                key={label}
-                className="border border-gray-200 rounded px-2 py-1 text-[9px] font-bold tracking-wider text-gray-500"
-              >
-                {text}
-              </div>
-            ))}
-          </div>
+          <PaymentIcons />
         </div>
       </div>
     </footer>

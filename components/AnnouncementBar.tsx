@@ -9,7 +9,7 @@ interface Props {
   enabled?: boolean;
 }
 
-const DEFAULT_TEXT = 'Nueva Colección · Envíos a toda Colombia · Pago Seguro con Bold · Diseños Exclusivos · Ropa para gente como tú · Verzus';
+const DEFAULT_TEXT = 'Nueva Colección · Diseñado en Colombia · Envíos en 24h · Pago 100% Seguro · Hecho para acompañarte';
 
 export default function AnnouncementBar({ text = DEFAULT_TEXT, enabled = true }: Props) {
   const messages = (text).split('·').map(s => s.trim()).filter(Boolean);

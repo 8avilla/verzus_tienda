@@ -5,6 +5,7 @@ import { Product } from '@/types';
 import ProductGallery from './ProductGallery';
 import AddToCart from './AddToCart';
 import ProductTabs from './ProductTabs';
+import { useTrackView } from '@/hooks/useRecentlyViewed';
 
 interface ReviewStats { count: number; avg: number }
 
@@ -20,6 +21,7 @@ function Stars({ rating }: { rating: number }) {
 
 export default function ProductColorView({ product, reviewStats }: { product: Product; reviewStats?: ReviewStats }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  useTrackView({ id: product.id, name: product.name, price: product.price, image: product.images[0] ?? '', category: product.category });
 
   function handleSelectionChange(selections: Record<string, string>, changedGroup?: string) {
     const groups = product.variantGroups ?? [];
@@ -47,6 +49,7 @@ export default function ProductColorView({ product, reviewStats }: { product: Pr
         freeShipping={product.freeShipping}
         activeIndex={activeImageIndex}
         onActiveIndexChange={setActiveImageIndex}
+        videoUrl={product.videoUrl}
       />
 
       <div className="flex flex-col gap-5 lg:py-4 lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto">

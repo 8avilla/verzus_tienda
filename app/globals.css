@@ -6,6 +6,11 @@
   --accent: #E8001C;
   --accent-hover: #C0001A;
   --accent-dark: #0F0002;
+  /* Warm neutrals — replace cold Tailwind grays in premium sections */
+  --warm-50: #F8F7F5;
+  --warm-100: #F0EEE9;
+  --warm-200: #E4E0D8;
+  --warm-border: #E8E4DC;
 }
 
 @theme inline {

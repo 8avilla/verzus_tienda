@@ -50,10 +50,10 @@ export default function Header({ navCategories = [] }: Props) {
   return (
     <>
       {/* ── HEADER BAR ── */}
-      <header className={`sticky top-0 z-30 transition-all duration-300 ${
+      <header className={`sticky top-0 z-30 bg-white transition-all duration-300 ${
         scrolled
-          ? 'bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-150'
-          : 'bg-white border-b border-gray-200'
+          ? 'shadow-sm border-b border-gray-100'
+          : 'border-b border-gray-100'
       }`}>
         <div className={`relative max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between transition-all duration-300 ${
           scrolled ? 'h-14' : 'h-16'
@@ -91,19 +91,19 @@ export default function Header({ navCategories = [] }: Props) {
           <nav className="hidden lg:flex flex-1 min-w-0 items-center justify-center gap-5 xl:gap-7 overflow-x-auto scrollbar-none px-4 [mask-image:linear-gradient(to_right,transparent,black_16px,black_calc(100%-16px),transparent)]">
             <Link
               href="/coleccion"
-              className="relative text-xs uppercase tracking-widest text-gray-500 hover:text-black transition-colors whitespace-nowrap py-1 shrink-0 group"
+              className={`relative text-xs uppercase tracking-widest transition-colors whitespace-nowrap py-1 shrink-0 group text-gray-500 hover:text-black`}
             >
               Nuevo
-              <span className="absolute bottom-0 left-0 w-full h-[1px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+              <span className={`absolute bottom-0 left-0 w-full h-[1px] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left bg-black`} />
             </Link>
             {navCategories.map(cat => (
               <Link
                 key={cat.id}
                 href={`/coleccion?categoria=${encodeURIComponent(cat.name)}`}
-                className="relative text-xs uppercase tracking-widest text-gray-500 hover:text-black transition-colors whitespace-nowrap py-1 shrink-0 group"
+                className={`relative text-xs uppercase tracking-widest transition-colors whitespace-nowrap py-1 shrink-0 group text-gray-500 hover:text-black`}
               >
                 {cat.name}
-                <span className="absolute bottom-0 left-0 w-full h-[1px] bg-black scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                <span className={`absolute bottom-0 left-0 w-full h-[1px] scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left bg-black`} />
               </Link>
             ))}
           </nav>
@@ -114,7 +114,7 @@ export default function Header({ navCategories = [] }: Props) {
             {/* Lupa — mobile y desktop */}
             <button
               onClick={() => setSearchOpen(true)}
-              className="flex items-center gap-1.5 text-black lg:text-gray-500 lg:hover:text-black transition-colors"
+              className={`flex items-center gap-1.5 transition-colors text-black lg:text-gray-500 lg:hover:text-black`}
               aria-label="Buscar"
             >
               <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -126,7 +126,7 @@ export default function Header({ navCategories = [] }: Props) {
 
             {/* Favoritos — solo desktop, visual por ahora */}
             <button
-              className="hidden lg:flex items-center gap-1.5 text-gray-500 hover:text-black transition-colors"
+              className={`hidden lg:flex items-center gap-1.5 transition-colors text-gray-500 hover:text-black`}
               aria-label="Favoritos"
               title="Favoritos (próximamente)"
             >
@@ -140,7 +140,7 @@ export default function Header({ navCategories = [] }: Props) {
             {/* Bolsa — solo mobile */}
             <button
               onClick={openSidebar}
-              className="lg:hidden relative flex items-center justify-center w-8 h-8 text-black"
+              className={`lg:hidden relative flex items-center justify-center w-8 h-8 transition-colors text-black`}
               aria-label={`Carrito, ${totalItems} ítems`}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,7 +161,7 @@ export default function Header({ navCategories = [] }: Props) {
             {/* Carrito — solo desktop, ícono + texto plano */}
             <button
               onClick={openSidebar}
-              className="hidden lg:flex items-center gap-1.5 text-gray-500 hover:text-black transition-colors"
+              className={`hidden lg:flex items-center gap-1.5 transition-colors text-gray-500 hover:text-black`}
               aria-label={`Carrito, ${totalItems} ítems`}
             >
               <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

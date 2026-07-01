@@ -99,21 +99,24 @@ export default function AddToCart({
 
                 if (swatchColor) {
                   return (
-                    <button
-                      key={opt}
-                      type="button"
-                      onClick={() => {
-                        const next = { ...selections, [group.name]: opt };
-                        setSelections(next);
-                        onSelectionChange?.(next, group.name);
-                      }}
-                      title={opt}
-                      aria-label={opt}
-                      className={`w-9 h-9 rounded-full border-2 transition-all duration-150 ${
-                        isSelected ? 'border-black ring-2 ring-black ring-offset-2' : 'border-gray-200 hover:border-gray-400'
-                      }`}
-                      style={{ backgroundColor: swatchColor }}
-                    />
+                    <div key={opt} className="relative group/sw flex flex-col items-center pb-5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const next = { ...selections, [group.name]: opt };
+                          setSelections(next);
+                          onSelectionChange?.(next, group.name);
+                        }}
+                        aria-label={opt}
+                        className={`w-9 h-9 rounded-full border-2 transition-all duration-150 ${
+                          isSelected ? 'border-black ring-2 ring-black ring-offset-2' : 'border-gray-200 hover:border-gray-400'
+                        }`}
+                        style={{ backgroundColor: swatchColor }}
+                      />
+                      <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[9px] text-gray-400 whitespace-nowrap opacity-0 group-hover/sw:opacity-100 transition-opacity pointer-events-none capitalize">
+                        {opt}
+                      </span>
+                    </div>
                   );
                 }
 

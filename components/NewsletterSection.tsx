@@ -23,42 +23,56 @@ export default function NewsletterSection() {
   }
 
   return (
-    <section className="bg-gray-50 border-t border-gray-100 py-12 px-4 sm:px-6">
-      <div className="max-w-xl mx-auto text-center flex flex-col gap-4">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.22em] text-gray-400 font-semibold mb-2">Newsletter</p>
-          <h2 className="text-xl sm:text-2xl font-bold text-black">Suscríbete</h2>
-          <p className="text-sm text-gray-500 mt-1.5">
-            Recibe novedades, lanzamientos y ofertas exclusivas.
+    <section className="bg-black py-16 px-4 sm:px-6">
+      <div className="max-w-xl mx-auto text-center flex flex-col gap-6">
+
+        <div className="flex flex-col gap-3">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-white/40 font-semibold">
+            ✦ Newsletter
+          </p>
+          <h2
+            className="text-3xl sm:text-4xl text-white font-normal italic leading-tight"
+            style={{ fontFamily: 'var(--font-dm-serif)' }}
+          >
+            Acceso anticipado a<br />nuevas colecciones
+          </h2>
+          <p className="text-sm text-white/50 leading-relaxed">
+            Suscríbete y recibe primero los lanzamientos, drops exclusivos y contenido de la marca.
           </p>
         </div>
 
         {status === 'ok' ? (
-          <p className="text-sm font-medium text-black py-3 border border-black rounded-xl">
-            ¡Gracias! Te has suscrito correctamente.
-          </p>
+          <div className="flex flex-col items-center gap-2 py-6">
+            <span className="text-2xl">✓</span>
+            <p className="text-sm text-white/70">Ya estás en la lista.</p>
+          </div>
         ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2 w-full">
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 w-full">
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="Tu email"
+              placeholder="tu@email.com"
               required
-              className="flex-1 border border-gray-200 focus:border-black rounded-xl px-4 py-3 text-sm focus:outline-none transition-colors"
+              className="flex-1 bg-white/10 border border-white/20 focus:border-white/50 focus:bg-white/15 text-white placeholder:text-white/30 rounded-none px-4 py-3.5 text-sm focus:outline-none transition-all"
             />
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="bg-black hover:bg-gray-800 disabled:opacity-50 text-white text-xs font-bold uppercase tracking-widest px-6 py-3 rounded-xl transition-colors shrink-0"
+              className="bg-white hover:bg-gray-100 disabled:opacity-50 text-black text-[11px] font-bold uppercase tracking-[0.18em] px-7 py-3.5 transition-colors shrink-0"
             >
-              {status === 'loading' ? 'Enviando…' : 'Suscribirme'}
+              {status === 'loading' ? '…' : 'Suscribirse'}
             </button>
           </form>
         )}
+
         {status === 'error' && (
-          <p className="text-xs text-red-500">Hubo un error. Intenta de nuevo.</p>
+          <p className="text-xs text-red-400">Hubo un error. Intenta de nuevo.</p>
         )}
+
+        <p className="text-[10px] text-white/25 tracking-wide">
+          Sin spam. Cancela cuando quieras.
+        </p>
       </div>
     </section>
   );

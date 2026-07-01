@@ -33,6 +33,7 @@ export interface Product {
   features?: string[];
   tagline?: string;
   featured?: boolean;
+  videoUrl?: string;
 }
 
 export interface CartItem {

@@ -11,12 +11,14 @@ export default function ProductGallery({
   freeShipping,
   activeIndex,
   onActiveIndexChange,
+  videoUrl,
 }: {
   images: string[];
   name: string;
   freeShipping?: boolean;
   activeIndex?: number;
   onActiveIndexChange?: (i: number) => void;
+  videoUrl?: string;
 }) {
   const [internalCurrent, setInternalCurrent] = useState(0);
   const current = activeIndex !== undefined ? activeIndex : internalCurrent;
@@ -61,24 +63,43 @@ export default function ProductGallery({
     );
   }
 
-  const ThumbnailButton = ({ img, i }: { img: string; i: number }) => (
-    <button
-      key={img}
-      onClick={() => setCurrent(i)}
-      aria-label={`Ver imagen ${i + 1}`}
-      className={`relative flex-shrink-0 aspect-[3/4] rounded-lg overflow-hidden bg-gray-100 transition-all duration-200 ${
-        i === current ? 'ring-1 ring-black ring-offset-1' : 'opacity-40 hover:opacity-75'
-      }`}
-    >
-      <Image
-        src={img}
-        alt={`${name} — miniatura ${i + 1}`}
-        fill
-        sizes="80px"
-        className="object-cover"
-      />
-    </button>
-  );
+  // slot 0 = video (if any), slots 1..n = images
+  const hasVideo = !!videoUrl;
+  const totalSlots = images.length + (hasVideo ? 1 : 0);
+  const isVideoSlot = (i: number) => hasVideo && i === 0;
+  const imageIndex = (i: number) => hasVideo ? i - 1 : i;
+
+  const ThumbnailButton = ({ i }: { i: number }) => {
+    const active = i === current;
+    return (
+      <button
+        onClick={() => setCurrent(i)}
+        aria-label={isVideoSlot(i) ? 'Ver video' : `Ver imagen ${imageIndex(i) + 1}`}
+        className={`relative flex-shrink-0 aspect-[3/4] rounded-lg overflow-hidden bg-gray-100 transition-all duration-200 ${
+          active ? 'ring-1 ring-black ring-offset-1' : 'opacity-40 hover:opacity-75'
+        }`}
+      >
+        {isVideoSlot(i) ? (
+          <>
+            <video src={videoUrl} muted className="w-full h-full object-cover" />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+          </>
+        ) : (
+          <Image
+            src={images[imageIndex(i)]}
+            alt={`${name} — miniatura ${imageIndex(i) + 1}`}
+            fill
+            sizes="80px"
+            className="object-cover"
+          />
+        )}
+      </button>
+    );
+  };
 
   return (
     /* Desktop: thumbnails left + main image. Mobile: main top + thumbnails row below */
@@ -87,44 +108,59 @@ export default function ProductGallery({
       {/* Vertical thumbnails — desktop left column */}
       {images.length > 1 && (
         <div className="hidden lg:flex flex-col gap-2 overflow-y-auto max-h-[640px] scrollbar-none">
-          {images.map((img, i) => (
-            <ThumbnailButton key={img} img={img} i={i} />
+          {Array.from({ length: totalSlots }, (_, i) => (
+            <ThumbnailButton key={i} i={i} />
           ))}
         </div>
       )}
 
-      {/* Main image */}
+      {/* Main image / video */}
       <div
         ref={imgContainerRef}
         className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-gray-100 select-none cursor-dot"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
-        onMouseMove={handleMouseMove}
+        onMouseMove={!isVideoSlot(current) ? handleMouseMove : undefined}
         onMouseLeave={() => setZoom(null)}
       >
-        {images.map((src, i) => (
-          <Image
-            key={src}
-            src={src}
-            alt={`${name} — imagen ${i + 1}`}
-            fill
-            priority={i < 2}
-            sizes="(max-width: 1024px) 100vw, 50vw"
-            className="object-cover"
-            style={{
-              opacity: i === current ? 1 : 0,
-              transition: i === current
-                ? 'opacity 0.25s ease, transform 0.15s ease-out'
-                : 'opacity 0.2s ease',
-              ...(i === current && zoom ? {
-                transformOrigin: `${zoom.x}% ${zoom.y}%`,
-                transform: 'scale(2.2)',
-              } : {
-                transform: 'scale(1)',
-              }),
-            }}
+        {/* Video slot */}
+        {hasVideo && (
+          <video
+            src={videoUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ opacity: current === 0 ? 1 : 0, transition: 'opacity 0.25s ease' }}
           />
-        ))}
+        )}
+
+        {/* Image slots */}
+        {images.map((src, imgI) => {
+          const slot = hasVideo ? imgI + 1 : imgI;
+          return (
+            <Image
+              key={src}
+              src={src}
+              alt={`${name} — imagen ${imgI + 1}`}
+              fill
+              priority={imgI < 2}
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              className="object-cover"
+              style={{
+                opacity: slot === current ? 1 : 0,
+                transition: slot === current
+                  ? 'opacity 0.25s ease, transform 0.15s ease-out'
+                  : 'opacity 0.2s ease',
+                ...(!isVideoSlot(current) && slot === current && zoom ? {
+                  transformOrigin: `${zoom.x}% ${zoom.y}%`,
+                  transform: 'scale(2.2)',
+                } : { transform: 'scale(1)' }),
+              }}
+            />
+          );
+        })}
 
         {freeShipping && (
           <div className="absolute top-4 left-4 bg-green-500 text-white text-[10px] uppercase tracking-wider font-bold px-3 py-1.5 rounded-full shadow">
@@ -132,24 +168,26 @@ export default function ProductGallery({
           </div>
         )}
 
-        {images.length > 1 && (
+        {totalSlots > 1 && (
           <div className="absolute bottom-4 left-4 bg-black/50 text-white text-[10px] font-medium px-2.5 py-1 rounded-full">
-            {current + 1}/{images.length}
+            {current + 1}/{totalSlots}
           </div>
         )}
 
-        <button
-          type="button"
-          aria-label="Ampliar imagen"
-          className="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-white/85 hover:bg-white shadow flex items-center justify-center transition-colors"
-          onClick={() => setZoom(zoom ? null : { x: 50, y: 50 })}
-        >
-          <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
-          </svg>
-        </button>
+        {!isVideoSlot(current) && (
+          <button
+            type="button"
+            aria-label="Ampliar imagen"
+            className="absolute bottom-4 right-4 w-8 h-8 rounded-full bg-white/85 hover:bg-white shadow flex items-center justify-center transition-colors"
+            onClick={() => setZoom(zoom ? null : { x: 50, y: 50 })}
+          >
+            <svg className="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+            </svg>
+          </button>
+        )}
 
-        {images.length > 1 && (
+        {totalSlots > 1 && (
           <>
             <button
               onClick={prev}
@@ -170,11 +208,11 @@ export default function ProductGallery({
       </div>
 
       {/* Horizontal thumbnails — mobile only */}
-      {images.length > 1 && (
+      {totalSlots > 1 && (
         <div className="flex lg:hidden gap-2 overflow-x-auto scrollbar-none pb-0.5">
-          {images.map((img, i) => (
-            <div key={img} className="w-[64px] flex-shrink-0">
-              <ThumbnailButton img={img} i={i} />
+          {Array.from({ length: totalSlots }, (_, i) => (
+            <div key={i} className="w-[64px] flex-shrink-0">
+              <ThumbnailButton i={i} />
             </div>
           ))}
         </div>

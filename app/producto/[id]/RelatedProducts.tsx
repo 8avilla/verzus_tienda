@@ -55,17 +55,25 @@ export default async function RelatedProducts({ category, excludeId }: { categor
 
   return (
     <section className="border-t border-gray-100 py-12 px-4 sm:px-6 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
-        <h2 className="text-sm font-bold uppercase tracking-widest text-black">Te pueden gustar</h2>
+      <div className="flex items-end justify-between mb-10">
+        <div className="flex flex-col gap-1">
+          <p className="text-[10px] uppercase tracking-[0.22em] text-gray-400 font-semibold">✦ Descubre más</p>
+          <h2
+            className="text-3xl text-black font-normal"
+            style={{ fontFamily: 'var(--font-dm-serif)' }}
+          >
+            También te puede gustar
+          </h2>
+        </div>
         <Link
           href={`/coleccion?categoria=${encodeURIComponent(category)}`}
-          className="text-[10px] uppercase tracking-widest text-gray-500 hover:text-black transition-colors"
+          className="text-[10px] uppercase tracking-[0.18em] text-gray-400 hover:text-black transition-colors border-b border-gray-300 hover:border-black pb-px shrink-0"
         >
-          Ver todas
+          Ver todas →
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8">
         {products.map(p => {
           const colorGroup = (p.variantGroups ?? []).find(g => g.name.toLowerCase().includes('color'));
           const swatches = colorGroup
@@ -81,27 +89,33 @@ export default async function RelatedProducts({ category, excludeId }: { categor
                     alt={p.name}
                     fill
                     sizes="(max-width: 640px) 50vw, 25vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                    className="object-cover transition-opacity duration-500 ease-in-out"
                   />
                 ) : (
                   <div className="w-full h-full bg-gray-100" />
                 )}
-                {/* Heart icon */}
-                <div className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/90 flex items-center justify-center shadow-sm">
-                  <svg className="w-3.5 h-3.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                  </svg>
-                </div>
+                {p.images[1] && (
+                  <Image
+                    src={p.images[1]}
+                    alt={p.name}
+                    fill
+                    sizes="(max-width: 640px) 50vw, 25vw"
+                    className="object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-500 ease-in-out"
+                  />
+                )}
               </div>
-              <div className="flex flex-col gap-1 px-0.5">
-                <p className="text-xs font-semibold uppercase tracking-tight text-black leading-snug line-clamp-2 group-hover:opacity-70 transition-opacity">
+              <div className="flex flex-col gap-1.5 px-0.5">
+                <p
+                  className="text-sm text-black leading-snug line-clamp-2 group-hover:opacity-70 transition-opacity font-normal"
+                  style={{ fontFamily: 'var(--font-dm-serif)' }}
+                >
                   {p.name}
                 </p>
-                <p className="text-sm font-bold text-black">${p.price.toLocaleString('es-CO')} COP</p>
+                <p className="text-[11px] font-normal text-gray-400">${p.price.toLocaleString('es-CO')} COP</p>
                 {swatches.length > 0 && (
-                  <div className="flex gap-1 mt-0.5">
+                  <div className="flex gap-1">
                     {swatches.map((c, i) => (
-                      <div key={i} className="w-3.5 h-3.5 rounded-full border border-gray-200" style={{ backgroundColor: c }} />
+                      <div key={i} className="w-3 h-3 rounded-full border border-gray-200" style={{ backgroundColor: c }} />
                     ))}
                   </div>
                 )}
